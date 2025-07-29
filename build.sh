@@ -44,6 +44,7 @@ for prog in flutter cmake make go; do
     fi
 done
 
+echo "Mode: $mode"
 echo "Building swisser..."
 mkdir -p swisser/build
 cd swisser/build
