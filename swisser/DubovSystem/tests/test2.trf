@@ -1,0 +1,34 @@
+012 Simple test case for dealing with byes
+022 --CPP DUBOV SYSTEM RANDOM TOURNAMENT (CITY)--
+032 --CPP DUBOV SYSTEM RANDOM TOURNAMENT (FEDERATION)--
+042 --CPP DUBOV SYSTEM RANDOM TOURNAMENT (START DATE)--
+052 --CPP DUBOV SYSTEM RANDOM TOURNAMENT (END DATE)--
+062 21
+072 21
+082 0
+092 Individual FIDE Dubov
+102 --CPP DUBOV SYSTEM RANDOM TOURNAMENT; ARBITER (12345678)--
+112 
+122 MOVES/TIME INCREMENT
+TNR 5
+001    1      PLAYER 1                          2760 USA ----------- 0000/00/00  4.5    1    11 w 1    10 b =     9 w 1    17 b 1    21 b 1
+001    2      PLAYER 2                          2686 USA ----------- 0000/00/00  4.0    2    12 b 1    18 w 0     8 b 1    13 w 1     7 b 1
+001    3      PLAYER 3                          2597 USA ----------- 0000/00/00  1.5   17    13 w 0     6 b 1     7 w 0     5 b 0    12 w =
+001    4      PLAYER 4                          2466 USA ----------- 0000/00/00  1.0   21    14 b =    16 w =    19 b 0     8 w 0     6 b 0
+001    5      PLAYER 5                          2235 USA ----------- 0000/00/00  2.5   10    15 w +     9 w =    17 b 0     3 w 1    18 b 0
+001    6      PLAYER 6                          1733 USA ----------- 0000/00/00  2.0   13    16 b -     3 w 0    15 b 0  0000 - +     4 w 1
+001    7      PLAYER 7                          1624 USA ----------- 0000/00/00  2.5   11    17 w =    11 b =     3 b 1    16 w =     2 w 0
+001    8      PLAYER 8                          1616 USA ----------- 0000/00/00  2.0   14    18 b -    15 b 1     2 w 0     4 b 1    17 w 0
+001    9      PLAYER 9                          1516 USA ----------- 0000/00/00  2.5   12    19 w 1     5 b =     1 b 0    14 w 1    10 w 0
+001   10      PLAYER 10                         1510 USA ----------- 0000/00/00  3.5    5    20 b +     1 w =    16 b 1    21 w 0     9 b 1
+001   11      PLAYER 11                         1504 USA ----------- 0000/00/00  1.5   18     1 b 0     7 w =    14 w 0    20 b -  0000 - +
+001   12      PLAYER 12                         1491 USA ----------- 0000/00/00  1.5   19     2 w 0    20 b 1    13 b 0    15 w 0     3 b =
+001   13      PLAYER 13                         1270 USA ----------- 0000/00/00  3.0    7     3 b 1    21 w -    12 w 1     2 b 0    20 w 1
+001   14      PLAYER 14                          686 USA ----------- 0000/00/00  1.5   20     4 w =    17 b -    11 b 1     9 b 0    19 w 0
+001   15      PLAYER 15                          609 USA ----------- 0000/00/00  3.0    8     5 b -     8 w 0     6 w 1    12 b 1    16 b 1
+001   16      PLAYER 16                          591 USA ----------- 0000/00/00  2.0   15     6 w +     4 b =    10 w 0     7 b =    15 w 0
+001   17      PLAYER 17                          562 USA ----------- 0000/00/00  3.5    6     7 b =    14 w +     5 w 1     1 w 0     8 b 1
+001   18      PLAYER 18                          336 USA ----------- 0000/00/00  4.0    3     8 w +     2 b 1    21 w -    19 w 1     5 w 1
+001   19      PLAYER 19                          331 USA ----------- 0000/00/00  3.0    9     9 b 0  0000 - +     4 w 1    18 b 0    14 b 1
+001   20      PLAYER 20                          291 USA ----------- 0000/00/00  2.0   16    10 w -    12 w 0  0000 - +    11 w +    13 b 0
+001   21      PLAYER 21                          104 USA ----------- 0000/00/00  4.0    4  0000 - +    13 b +    18 b +    10 b 1     1 w 0

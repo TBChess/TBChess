@@ -1,0 +1,1 @@
+data={"rounds": 5,"players": [{"name": "player1", "elo": 2000},{"name": "player2",  "elo": 700},{"name": "player3", "elo": 1000}],"games": [[{"white": "player1", "black": "player2", "result": 1.0},{"white": "player3", "bye": true}]]}
