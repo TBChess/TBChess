@@ -2,16 +2,18 @@
 import 'package:flutter/foundation.dart';
 
 Map<String, dynamic> getConfig(){
-  if (kDebugMode){
+  String domain = const String.fromEnvironment('DOMAIN', defaultValue: 'localhost');
+  bool production = const String.fromEnvironment("PRODUCTION", defaultValue: 'dev') == 'production';
+
+  if (production){
     return {
-      'APP_URL': 'http://localhost',
-      'PB_URL': 'http://192.168.2.253:4090'
+      'APP_URL': 'https://$domain',
+      'PB_URL': 'https://$domain'
     };
   }else{
-    // Production
     return {
-      'APP_URL': 'https://app.tbchess.org',
-      'PB_URL': 'https://app.tbchess.org'
+      'APP_URL': 'http://$domain:4090',
+      'PB_URL': 'http://$domain:4090'
     };
   }
 }
