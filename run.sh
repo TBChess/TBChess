@@ -32,6 +32,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+echo " _________  _______ ______________"
+echo "/_  __/ _ )/ ___/ // / __/ __/ __/"
+echo " / / / _  / /__/ _  / _/_\ \_\ \  "
+echo "/_/ /____/\___/_//_/___/___/___/  "
+echo                                   
+echo                                                     
+
+
 echo "Running in $mode mode"
 
 if [[ "$mode" == "production" ]]; then
@@ -58,8 +66,10 @@ if [ -f swisser.pid ]; then
 fi
 
 # Install swisser if provided
-if [ -f ./swisser/build/swisser_install ]; then
-    ./swisser/build/swisser_install
+if [[ "$mode" == "production" ]]; then
+    if [ -f ./swisser/build/swisser_install ]; then
+        ./swisser/build/swisser_install
+    fi
 fi
 
 PATH=$PATH:/opt/exodus/bin/:~/.exodus/bin/:$(pwd)/swisser/build swisser --host 127.0.0.1 &
