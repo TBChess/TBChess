@@ -6,7 +6,7 @@ It features player registration, ELO tracking, tournament management, round pair
 
 ![Image](https://github.com/user-attachments/assets/bc5d6d33-8b8d-4814-89a4-a4649ac79259)
 
-It's also super-lightweight and cross-platform (runs on Windows, macOS, Linux). You can deploy it on your laptop or the cheapest VPS you can find.
+It's also super-lightweight and cross-platform (runs on Windows, macOS, Linux). You can run it on your laptop or deploy it to the cheapest VPS you can find.
 
 ## Getting Started
 
@@ -39,7 +39,7 @@ Once the app is running, you'll see a message in the terminal asking you to crea
 
 - `build.sh` - Build script
 - `deploy.sh` - Deployment helper
-- `run.sh` - Run the full stack
+- `run.sh` - Run the entire application
 
 ## Contributing
 
