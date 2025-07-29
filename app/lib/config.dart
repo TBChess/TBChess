@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 Map<String, dynamic> getConfig(){
   String domain = const String.fromEnvironment('DOMAIN', defaultValue: 'localhost');
-  bool production = const String.fromEnvironment("PRODUCTION", defaultValue: 'dev') == 'production';
+  bool production = const String.fromEnvironment('MODE', defaultValue: 'dev') == 'production';
 
   if (production){
     return {

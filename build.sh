@@ -2,14 +2,14 @@
 set -e
 cd "$(dirname "$0")"
 
-mode="development"
+mode="dev"
 domain="127.0.0.1"
 dev_suffix="_dev"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --mode)
-            if [[ "$2" == "production" || "$2" == "development" ]]; then
+            if [[ "$2" == "production" || "$2" == "dev" ]]; then
                 mode="$2"
                 shift 2
             else
@@ -56,14 +56,10 @@ if [ ! -f ./swisser ]; then
     exit 1
 fi
 
-if command -v exodus >/dev/null 2>&1; then
-    exodus ./swisser -o ./swisser_portable
-fi
-
 cd ../../app
 echo "Building web app..."
 output="../backend/pb_public$dev_suffix/"
-flutter build web --output $output --dart-define "DOMAIN=$domain MODE=$mode"
+flutter build web --output $output --dart-define="DOMAIN=$domain" --dart-define="MODE=$mode"
 
 cd ../backend
 go build .

@@ -21,4 +21,7 @@ if ! command -v rsync >/dev/null 2>&1; then
 fi
 
 ./build.sh --mode production --domain $DOMAIN
-rsync -avz -e ssh --files-from=deploy.txt . $SSH_HOST:~/$APP_DIR
+if command -v exodus >/dev/null 2>&1; then
+    exodus ./swisser/build/swisser -o ./swisser/build/swisser_install
+fi
+rsync -avz -e ssh --files-from=deploy.txt -r . $SSH_HOST:~/$APP_DIR

@@ -2,5 +2,5 @@ backend/tbchess
 backend/migrations/
 backend/pb_public/
 swisser/build/swisser
-swisser/build/swisser_portable
+swisser/build/swisser_install
 ./run.sh

@@ -2,13 +2,13 @@
 set -e
 cd "$(dirname "$0")"
 
-mode="development"
+mode="dev"
 domain="127.0.0.1"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --mode)
-            if [[ "$2" == "production" || "$2" == "development" ]]; then
+            if [[ "$2" == "production" || "$2" == "dev" ]]; then
                 mode="$2"
                 shift 2
             else
@@ -57,12 +57,12 @@ if [ -f swisser.pid ]; then
     rm -f swisser.pid
 fi
 
-swisser_bin="swisser"
-if [ -f ./swisser/build/swisser_portable ]; then
-    swisser_bin="swisser_portable"
+# Install swisser if provided
+if [ -f ./swisser/build/swisser_install ]; then
+    ./swisser/build/swisser_install
 fi
 
-./swisser/build/$swisser_bin --host 127.0.0.1 &
+PATH=$PATH:/opt/exodus/bin/:~/.exodus/bin/:$(pwd)/swisser/build swisser --host 127.0.0.1 &
 echo $! > swisser.pid
 trap 'kill $(cat swisser.pid); rm -f swisser.pid; exit' INT
 
