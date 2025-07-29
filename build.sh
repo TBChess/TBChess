@@ -59,7 +59,7 @@ fi
 cd ../../app
 echo "Building web app..."
 output="../backend/pb_public$dev_suffix/"
-flutter build web --output $output --dart-define DOMAIN=$domain --dart-define MODE=$mode
+flutter build web --output $output --dart-define "DOMAIN=$domain MODE=$mode"
 
 cd ../backend
 go build .
