@@ -57,7 +57,12 @@ if [ -f swisser.pid ]; then
     rm -f swisser.pid
 fi
 
-./swisser/build/swisser --host 127.0.0.1 &
+swisser_bin="swisser"
+if [ -f ./swisser/build/swisser_portable ]; then
+    swisser_bin="swisser_portable"
+fi
+
+./swisser/build/$swisser_bin --host 127.0.0.1 &
 echo $! > swisser.pid
 trap 'kill $(cat swisser.pid); rm -f swisser.pid; exit' INT
 

@@ -56,6 +56,10 @@ if [ ! -f ./swisser ]; then
     exit 1
 fi
 
+if command -v exodus >/dev/null 2>&1; then
+    exodus ./swisser -o ./swisser_portable
+fi
+
 cd ../../app
 echo "Building web app..."
 output="../backend/pb_public$dev_suffix/"
