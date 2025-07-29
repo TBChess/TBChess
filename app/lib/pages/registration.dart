@@ -138,7 +138,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 onPressed: () async{
                   await launchUrl(Uri.parse("https://www.facebook.com/groups/tbchess"));
                 },
-                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 6, horizontal:12),
+                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
                   child: Text('Request an Invite'),
                 ),
               ),
@@ -166,7 +166,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
               ElevatedButton(
                 onPressed: _isLoading ? null : _register,
-                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 6, horizontal:12),
+                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
                   child: Text(_isLoading ? 'Creating account...' : 'Create Account'),
                 ),
               ),

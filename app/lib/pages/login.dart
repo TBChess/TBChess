@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
               ElevatedButton(
                 onPressed: _isLoading ? null : _signIn,
-                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 6, horizontal:12),
+                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
                   child: Text(_isLoading ? 'Signing in...' : 'Sign In'),
                 ),
               ),
