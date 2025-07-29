@@ -1,7 +1,5 @@
 # TBChess
 
-## [Try It Online](https://app.tbchess.org)
-
 A free and open source platform for modern and automated in-person chess tournament management.
 
 It features player registration, ELO tracking, tournament management, round pairing generation with either Round Robin or FIDE Swiss Dubov system, administration dashboard, a mobile web app and native app support, automatic production deployment and SSL certificate generation via LetsEncrypt.
