@@ -27,6 +27,8 @@ cd TBChess
 
 This will run everything for you. If you want to build individual components, see the `build.sh` script.
 
+Once the app is running, you'll see a message in the terminal asking you to create a super user.
+
 ## Project Structure
 
 - `app/` - Flutter app (web, mobile, desktop)
