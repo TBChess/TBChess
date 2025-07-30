@@ -10,7 +10,8 @@ class EventRegisterButton extends StatefulWidget {
   final void Function(RecordModel)? onRegister;
   final void Function(String)? onUnregister;
   final bool hideWhenStarted;
-  const EventRegisterButton(this.event, this.signedUp, this.byob, {this.onRegister, this.onUnregister, this.hideWhenStarted = false, super.key});
+  final bool cancelLabel;
+  const EventRegisterButton(this.event, this.signedUp, this.byob, {this.onRegister, this.onUnregister, this.hideWhenStarted = false, this.cancelLabel = false, super.key});
 
   @override
   State<EventRegisterButton> createState() => _EventRegisterButtonState();
@@ -94,6 +95,10 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
     if (_signedUp){
       buttonText = "Registered";
       buttonColor = Colors.green;
+      if (widget.cancelLabel){
+        buttonText = "Unregister";
+        buttonColor = Colors.red;
+      }
     }
     bool started = widget.event.getBoolValue('started');
     bool finished = widget.event.getBoolValue('finished');

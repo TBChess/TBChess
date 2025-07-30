@@ -346,135 +346,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Date and time
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Event title at the top
-                        Text(
-                          venue.getStringValue("name"),
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        
-                        // Logo and content section
-                        Column(children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Logo section
-                              venueLogoUrl.isNotEmpty
-                                ? Image.network(venueLogoUrl, width: 92, height: 92)
-                                : Icon(Icons.event, size: 72, color: Colors.blueAccent),
-                              const SizedBox(width: 16),
-                              // Content section
-                              Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Date and time section
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      padding: EdgeInsets.only(left: 3), 
-                                      child: EventDateTime(
-                                        event.getStringValue('event_date'),
-                                        spacing: 8
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    
-                                    // Location section
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                      const Icon(Icons.location_on, color: Colors.red),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        getVenueAddress(venue.data),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis
-                                      ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                            ]
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 16),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            children: [
-                              // First row of details
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.repeat,
-                                      'Rounds',
-                                      '${event.getIntValue("rounds")}',
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.timer,
-                                      'Time Control',
-                                      event.getStringValue('time_control'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              // Second row of details
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.people_outline,
-                                      'Max Players',
-                                      '${event.getIntValue('max_players')}',
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.dashboard,
-                                      'Chess Boards',
-                                      venueByob ? 'Bring own' : 'Provided',
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              
-                              if (prizes.isNotEmpty) ...[const SizedBox(height: 12), Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.emoji_events,
-                                      'Prizes',
-                                      prizes,
-                                      multiline: true
-                                    ),
-                                  )
-                                ],
-                              ),],
-                            ],                            
-                          ),
-                        ),
-                        ]),
-                      ],
-                    ),
-                  ),
-                ),                
-                
                 if (!finished) ...[const SizedBox(height: 16), Center(child: Card(
                     child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -607,11 +478,143 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             ),
                             ),
                           const SizedBox(height: 16),
-                          Center(child: EventRegisterButton(_event!, isSignedUp, venueByob, hideWhenStarted: true, ))
+                          Center(child: EventRegisterButton(_event!, isSignedUp, venueByob, 
+                                          hideWhenStarted: true,
+                                          cancelLabel: true, ))
                         ],
                       ),
                     ),
                   ),
+
+                const SizedBox(height: 16),
+                                // Date and time
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Event title at the top
+                        Text(
+                          venue.getStringValue("name"),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Logo and content section
+                        Column(children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Logo section
+                              venueLogoUrl.isNotEmpty
+                                ? Image.network(venueLogoUrl, width: 92, height: 92)
+                                : Icon(Icons.event, size: 72, color: Colors.blueAccent),
+                              const SizedBox(width: 16),
+                              // Content section
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Date and time section
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: EdgeInsets.only(left: 3), 
+                                      child: EventDateTime(
+                                        event.getStringValue('event_date'),
+                                        spacing: 8
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    
+                                    // Location section
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                      const Icon(Icons.location_on, color: Colors.red),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        getVenueAddress(venue.data),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis
+                                      ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                            ]
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 16),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              // First row of details
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.repeat,
+                                      'Rounds',
+                                      '${event.getIntValue("rounds")}',
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.timer,
+                                      'Time Control',
+                                      event.getStringValue('time_control'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              // Second row of details
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.people_outline,
+                                      'Max Players',
+                                      '${event.getIntValue('max_players')}',
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.dashboard,
+                                      'Chess Boards',
+                                      venueByob ? 'Bring own' : 'Provided',
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              
+                              if (prizes.isNotEmpty) ...[const SizedBox(height: 12), Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.emoji_events,
+                                      'Prizes',
+                                      prizes,
+                                      multiline: true
+                                    ),
+                                  )
+                                ],
+                              ),],
+                            ],                            
+                          ),
+                        ),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),            
               ],
             ),
         ],

@@ -94,11 +94,11 @@ class _EventVSState extends State<EventVS>{
       
       final icoPlaceholder =  SizedBox(height: 24);
 
-      Widget whiteIco = icoPlaceholder;
-      Widget blackIco = icoPlaceholder;
+      Widget? whiteIco;
+      Widget? blackIco;
       Widget matchIco = icoPlaceholder;
-      Widget whitePts = Container();
-      Widget blackPts = Container();
+      Widget? whitePts;
+      Widget? blackPts;
 
       Widget winPts = Text("+100");
       Widget lostPts = Text("+20");
@@ -138,17 +138,17 @@ class _EventVSState extends State<EventVS>{
 
         TextStyle s = TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 18,
                   fontStyle: FontStyle.italic,
                 );
         if (!finished){
           if (bye){
-            bottomText = Text("You're sitting this round out", style: s);
+            bottomText = Text("You sit this round out", style: s);
           }else{
             bottomText = RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: "You are playing with the "),
+                    TextSpan(text: "You play with the "),
                     TextSpan(text: userColor, style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: " pieces")
                   ],
@@ -185,13 +185,26 @@ class _EventVSState extends State<EventVS>{
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     width: 200,
+                    height: 160,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue, width: 2),
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person, size: 32, color: Colors.blue),
+                        Container(
+                          decoration: BoxDecoration(boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                              offset: Offset(0, 0),
+                            ),
+                          ],),
+                          child: Icon(Icons.square_rounded, size: 32, color: Colors.white),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           game.getStringValue("white_name"), // Replace with actual player name
@@ -202,10 +215,10 @@ class _EventVSState extends State<EventVS>{
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
-                        whitePts,
-                        const SizedBox(height: 8),
-                        whiteIco,
+                        if (whitePts != null) ...[const SizedBox(height: 4),
+                                              whitePts!],
+                        if (whiteIco != null) ...[const SizedBox(height: 8),
+                                              whiteIco!],
                       ],
                     ),
                    ),
@@ -255,13 +268,26 @@ class _EventVSState extends State<EventVS>{
                    Container(
                     padding: const EdgeInsets.all(12),
                     width: 200,
+                    height: 160,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red, width: 2),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person, size: 32, color: Colors.red),
+                        Container(
+                          decoration: BoxDecoration(boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                              offset: Offset(0, 0),
+                            ),
+                          ],),
+                          child: Icon(Icons.square_rounded, size: 32, color: Colors.black87),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           game.getStringValue("black_name"),
@@ -273,10 +299,10 @@ class _EventVSState extends State<EventVS>{
                           overflow: TextOverflow.ellipsis,
                         ),
 
-                        const SizedBox(height: 4),
-                        blackPts,
-                        const SizedBox(height: 8),
-                        blackIco,
+                        if (blackPts != null) ...[const SizedBox(height: 4),
+                                              blackPts],
+                        if (blackIco != null) ...[const SizedBox(height: 8),
+                                              blackIco],
                       ],
                     ),
                    ),
