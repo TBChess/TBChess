@@ -116,10 +116,12 @@ class _EventVSState extends State<EventVS>{
           whiteIco = winIcon;
           whitePts = winPts;
           blackPts = lostPts;
+          blackIco = icoPlaceholder;
         }else if (blackWon){
           blackIco = winIcon;
           blackPts = winPts;
           whitePts = lostPts;
+          whiteIco = icoPlaceholder;
         }else if (draw){
           whiteIco = drawIcon;
           blackIco = drawIcon;
