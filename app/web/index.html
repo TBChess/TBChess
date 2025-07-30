@@ -34,6 +34,30 @@
   <style>html,body{background: #141218;}</style>
 </head>
 <body>
+  <div id="spinner-container"><div class="material-spinner"></div></div>
+  <style>
+  html,body{
+    margin: 0;
+    padding: 0;
+  }
+  .material-spinner {
+    position: absolute;
+    left: calc(50% - 24px);
+    top: calc(45% - 24px);
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    animation: material-spin 1s linear infinite;
+    box-sizing: border-box;
+  }
+  @keyframes material-spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  </style>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
