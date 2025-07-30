@@ -27,9 +27,25 @@ class _EventsPageState extends State<EventsPage> {
       final events = await pb.collection('events_list').getFullList(
         sort: '-event_date'
       );
+
+      // Automatically redirect to the first in progress event (on first load)
+      // if there's a match in progress
+      if (pb.authStore.isValid && mounted && !context.getPageLoadRedirected()){
+        for (final event in events) {
+          final userSignups = event.data['user_signups'] ?? [];
+          final inProgress = event.getBoolValue('started') && !event.getBoolValue("finished");
+          if (inProgress && userSignups.contains(pb.authStore.record?.id)) {
+            context.setPageLoadRedirected();
+            context.go('/event/${event.id}');
+            break;
+          }
+        }
+      }
+
       setState(() {
         _events = events;
       });
+
     } on ClientException catch (error){
       if (mounted){
         context.showNetworkError(error, title: "Cannot get events list");

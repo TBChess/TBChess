@@ -122,6 +122,7 @@ class MainApp extends StatelessWidget {
 
 String _nextPage = "";
 String _invite = "";
+bool _pageLoadRedirected = false;
 
 extension ContextExtension on BuildContext {
 
@@ -139,6 +140,14 @@ extension ContextExtension on BuildContext {
 
   String getNextPage(){
     return _nextPage;
+  }
+
+  void setPageLoadRedirected(){
+    _pageLoadRedirected = true;
+  }
+
+  bool getPageLoadRedirected(){
+    return _pageLoadRedirected;
   }
 
   void showSnackBar(String message, {bool isError = false}) {
