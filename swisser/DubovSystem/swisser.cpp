@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
         res.set_content("Swisser v" APP_VERSION " is running", "text/plain");
     });
     svr.Get("/ping", [](const httplib::Request &, httplib::Response &res) {
-        res.set_content(json( {{"swisser", "running", "version", APP_VERSION }}).dump(), "application/json");
+        res.set_content(json( {{"swisser", "running"}, {"version", APP_VERSION }}).dump(), "application/json");
     });
     
     svr.Post("/round", [&verbose](const httplib::Request &req, httplib::Response &res) {
