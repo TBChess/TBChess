@@ -268,9 +268,13 @@ func main() {
 	nextRound := func(txApp core.App, e *core.RequestEvent, event *core.Record) error {
 		// Check signups
 		minPlayers := event.GetInt("min_players")
-		signups, err := txApp.FindAllRecords("event_signups_list",
-			dbx.NewExp("event = {:event_id}", dbx.Params{"event_id": event.Id}),
-		)
+		signups, err := txApp.FindRecordsByFilter("event_signups_list",
+			"event = {:event_id}",
+			"created",
+			0,
+			0,
+			dbx.Params{"event_id": event.Id})
+
 		if err != nil {
 			return e.BadRequestError("Not enough players signed up", nil)
 		}

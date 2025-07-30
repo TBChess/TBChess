@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "httplib.h"
 #include "json.hpp"
 using json = nlohmann::json;
-
+#define APP_VERSION "0.9"
 
 int main(int argc, char **argv) {
     httplib::Server svr;
@@ -46,10 +46,10 @@ int main(int argc, char **argv) {
     }
 
     svr.Get("/", [](const httplib::Request &, httplib::Response &res) {
-        res.set_content("Swisser is running", "text/plain");
+        res.set_content("Swisser v" APP_VERSION " is running", "text/plain");
     });
     svr.Get("/ping", [](const httplib::Request &, httplib::Response &res) {
-        res.set_content(json( {{"swisser", "running"}}).dump(), "application/json");
+        res.set_content(json( {{"swisser", "running", "version", APP_VERSION }}).dump(), "application/json");
     });
     
     svr.Post("/round", [&verbose](const httplib::Request &req, httplib::Response &res) {
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
         
     });
 
-    std::cout << "Running swisser on " << host << ":" << port << std::endl;
+    std::cout << "Running swisser v" APP_VERSION " on " << host << ":" << port << std::endl;
     svr.listen(host, port);
     
     return 0;

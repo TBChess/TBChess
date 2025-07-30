@@ -2503,7 +2503,7 @@ std::vector<CPPDubovSystem::Match> CPPDubovSystem::Tournament::makeRoundRobinRou
     }
 
     auto schedule = tables[tableIdx];
-    bool cycle = std::floor((pairing_round - 1) / schedule.size());
+    int cycle = std::floor((pairing_round - 1) / schedule.size());
     bool reverse = cycle % 2 == 1;
     auto round = schedule[(pairing_round - 1) % schedule.size()];
     auto players = getPlayers();
