@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:js_interop';
+import 'package:flutter/foundation.dart';
+import 'package:web/helpers.dart' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +33,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   var _subscribedEvent = false;
   var _subscribedSignups = false;
   var _subscribedGames = false;
+  var _lastRefresh = 0;
 
   RecordModel? _event;
   RecordModel? _venue;
@@ -131,10 +135,17 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
   
-  Future<void> _getEvent() async {
-    setState(() {
-      _loading = true;
-    });
+  Future<void> _getEvent({bool background = false}) async {
+    if (background){
+      // Check last time we've updated
+      if (DateTime.now().millisecondsSinceEpoch - _lastRefresh < 10000) return;
+    }else{
+      setState(() {
+        _loading = true;
+      });
+    }
+    
+    _lastRefresh = DateTime.now().millisecondsSinceEpoch;
 
     try {
       _event = await pb.collection("events").getOne(widget.eventId, 
@@ -159,6 +170,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         fetchSignups(),
         fetchGames(),
       ]);
+      
+      // If background, we don't want to re-subscribe
+      if (background) return;
 
       List<Future<UnsubscribeFunc>> f = [];
 
@@ -205,10 +219,20 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     }
   }
 
+  late final _onFocus;
+  void onFocus(html.Event e) {
+    // App resumed
+    _getEvent(background: true);
+  }
+
   @override
   void initState() {
     super.initState();
     _getEvent();
+    if (kIsWeb){
+      _onFocus = onFocus.toJS;
+      html.window.addEventListener("focus", _onFocus);
+    }
   }
 
   @override
@@ -225,12 +249,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       pb.collection('games').unsubscribe("*");
       _subscribedGames = false;
     }
-    super.deactivate();
-  }
 
-  @override
-  void dispose() {
-    super.dispose();
+    if (kIsWeb){
+      html.window.removeEventListener("focus", _onFocus);
+    }
+    super.deactivate();
   }
 
     Widget _buildInfoItem(IconData icon, String label, String value, { bool multiline = false}) {
@@ -268,6 +291,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
+              context.setPageLoadRedirected();
               context.go('/events');
             },
           ),
@@ -325,6 +349,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            context.setPageLoadRedirected();
             context.go('/events');
           },
         ),

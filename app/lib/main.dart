@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tbchessapp/pages/account.dart';
@@ -25,6 +24,7 @@ Future<void> main() async {
 
   final c = getConfig();
   pb = PocketBase(c['PB_URL'], authStore: store);
+  
   // await pb.collection('users').authRefresh();
 
   runApp(const MainApp());
