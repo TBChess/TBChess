@@ -135,10 +135,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
   
-  Future<void> _getEvent({bool background = false}) async {
+  Future<void> _getEvent({bool background = false, bool ignoreTime = false}) async {
     if (background){
       // Check last time we've updated
-      if (DateTime.now().millisecondsSinceEpoch - _lastRefresh < 10000) return;
+      if (!ignoreTime) if (DateTime.now().millisecondsSinceEpoch - _lastRefresh < 10000) return;
     }else{
       setState(() {
         _loading = true;
@@ -365,7 +365,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         ),
         ],
       ),      
-      body: ListView(
+      body: RefreshIndicator(onRefresh: () async {
+        await _getEvent(background: true, ignoreTime: true);
+      }, child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
             Column(
@@ -643,6 +645,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               ],
             ),
         ],
+      ),
       ),
     );
   }

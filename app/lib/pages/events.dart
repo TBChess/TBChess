@@ -17,10 +17,12 @@ class _EventsPageState extends State<EventsPage> {
   var _loading = true;
   List<RecordModel> _events = [];
 
-  Future<void> _refreshEvents() async {
-    setState(() {
-      _loading = true;
-    });
+  Future<void> _refreshEvents({bool background = false}) async {
+    if (!background){
+      setState(() {
+        _loading = true;
+      });
+    }
 
     try {
       // Get the file URL for the logo field
@@ -88,7 +90,9 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ],
       ),
-      body: ListView(
+      body: RefreshIndicator(onRefresh: () async {
+        await _refreshEvents(background: true);
+      }, child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
           if (_loading)
@@ -199,6 +203,7 @@ class _EventsPageState extends State<EventsPage> {
               );
             })
         ],
+      ),
       ),
     );
   }
