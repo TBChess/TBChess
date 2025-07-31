@@ -136,7 +136,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
               ElevatedButton(
                 onPressed: () async{
-                  await launchUrl(Uri.parse("https://www.facebook.com/groups/tbchess"));
+                  await launchUrl(Uri.parse("https://tbchess.org/invite.htm"));
                 },
                 child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
                   child: Text('Request an Invite'),
