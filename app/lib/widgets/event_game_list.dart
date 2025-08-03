@@ -1,13 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:tbchessapp/widgets/adjust_score_dialog.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tbchessapp/main.dart';
 
-class EventGameList extends StatelessWidget  {
+class EventGameList extends StatefulWidget  {
   final List<RecordModel> games;
+  final bool isOwner;
 
-  const EventGameList(this.games, {super.key});
+  const EventGameList(this.games, {this.isOwner = false, super.key});
+
+  @override
+  State<EventGameList> createState() => _EventGameListState();
+}
+
+class _EventGameListState extends State<EventGameList>  {
+  bool _adjustingScore = false;
+
+  Future<void> _adjustScore(String gameId, MatchAdjustmentResult matchResult) async{
+  try{
+      if (!pb.authStore.isValid){
+        context.go("/");
+        return;
+      }
+      
+      double result = 0.0;
+      if (matchResult == MatchAdjustmentResult.whiteWon){
+        result = 1.0;
+      }else if (matchResult == MatchAdjustmentResult.blackWon){
+        result = 0.0;
+      }else if (matchResult == MatchAdjustmentResult.draw){
+        result = 0.5;
+      }
+
+      await pb.send("/api/tbchess/game/$gameId/finish", method: "POST", body: {
+        "result": result,
+      });
+      
+      setState(() {
+        _adjustingScore = true;      
+      });
+
+    } on ClientException catch (error){
+      if (mounted){
+        context.showNetworkError(error);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _adjustingScore = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final games = widget.games;
     if (games.isEmpty) {
       return Container();
     }
@@ -97,6 +146,25 @@ class EventGameList extends StatelessWidget  {
                     blackIco,
                   ],
                 ),
+
+                if (widget.isOwner && !bye) ...[const SizedBox(height: 8), Center(child: TextButton(
+                  onPressed: (){
+                    AdjustScoreDialog.show(
+                      context,
+                      onResultSelected: (MatchAdjustmentResult result){
+                        _adjustScore(game.id, result);
+                      },
+                      title: "$whiteName vs. $blackName"
+                    );
+                  },
+                  child: _adjustingScore 
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3)
+                      )
+                    : Text(finished ? "Adjust Score" : "Report Score")
+                ))],
               ],
         );
       },

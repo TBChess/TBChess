@@ -403,7 +403,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                   const SizedBox(height: 16),
 
                                   if (userCurrentGame != null) ...[EventVS(userCurrentGame), const SizedBox(height: 16)],
-                                  if (otherRoundGames != null) EventGameList(otherRoundGames),
+                                  if (otherRoundGames != null) EventGameList(otherRoundGames, isOwner: isOwner),
 
                                 ],
                               ),
