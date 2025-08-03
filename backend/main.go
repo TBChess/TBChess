@@ -430,19 +430,29 @@ func main() {
 
 			authRecord := e.Auth
 
-			if !authRecord.IsSuperuser() && game.GetString("white") != authRecord.Id && game.GetString("black") != authRecord.Id {
-				return e.ForbiddenError("You don't have permission to finish this game", nil)
-			}
-
-			if game.GetBool("finished") {
-				return e.BadRequestError("Game already finished", nil)
-			}
-
 			eventId := game.GetString("event")
 			event, err := app.FindRecordById(
 				"events",
 				eventId,
 			)
+			if err != nil {
+				return e.BadRequestError("Cannot find event associated with this game", nil)
+			}
+
+			isOwner := event.GetString("owner") == authRecord.Id
+
+			if !authRecord.IsSuperuser() &&
+				game.GetString("white") != authRecord.Id &&
+				game.GetString("black") != authRecord.Id &&
+				!isOwner {
+				return e.ForbiddenError("You don't have permission to finish this game", nil)
+			}
+
+			// Don't allow players to submit score twice
+			// (but allow owners to adjust scores)
+			if !authRecord.IsSuperuser() && !isOwner && game.GetBool("finished") {
+				return e.BadRequestError("Game already finished", nil)
+			}
 
 			if !event.GetBool("started") {
 				return e.BadRequestError("Event not started", nil)
