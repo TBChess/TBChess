@@ -205,7 +205,7 @@ class _AccountPageState extends State<AccountPage> {
                         style: TextStyle(fontSize: 16),
                       ),
                       const Text(
-                        'Be notified when a new round starts for the events you are playing',
+                        'Be notified when a new round starts',
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
