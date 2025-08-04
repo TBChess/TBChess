@@ -113,7 +113,7 @@ class _EventGameListState extends State<EventGameList>  {
           blackStyle = const TextStyle(
               fontStyle: FontStyle.italic,
             );
-          blackName = "unpaired";
+          blackName = "sitting out";
           blackIco = icoPlaceholder;
         }
 
