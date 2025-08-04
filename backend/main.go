@@ -117,9 +117,14 @@ func main() {
 	// GitHub selfupdate
 	// ghupdate.MustRegister(app, app.RootCmd, ghupdate.Config{})
 
+	_, vapidPublicKey, err := getVAPIDKeys()
+	if err != nil {
+		log.Fatal("Cannot generate vapid keys")
+	}
+
 	// Initialize swisser
 	swisserClient := swisser.NewSwisserClient(swisserUrl)
-	err := swisserClient.Ping()
+	err = swisserClient.Ping()
 	if err != nil {
 		log.Fatal("Failed to connect to swisser service: ", err)
 	}
@@ -348,6 +353,11 @@ func main() {
 			return e.BadRequestError("Cannot save event", nil)
 		}
 
+		err = webPushNotifyNewRound(txApp, event.Id, maxRound+1)
+		if err != nil {
+			txApp.Logger().Warn(fmt.Sprintf("Cannot push web notifications: %s", err))
+		}
+
 		return nil
 	}
 
@@ -542,6 +552,21 @@ func main() {
 
 			return e.JSON(http.StatusOK, map[string]bool{"success": true})
 		}).Bind(apis.RequireAuth())
+
+		se.Router.GET("/api/tbchess/vapid", func(e *core.RequestEvent) error {
+			return e.JSON(http.StatusOK, map[string]string{"publicKey": vapidPublicKey})
+		})
+
+		se.Router.GET("/api/tbchess/test/{event_id}", func(e *core.RequestEvent) error {
+			eventId := e.Request.PathValue("event_id")
+
+			err := webPushNotifyNewRound(app, eventId, 3)
+			if err != nil {
+				app.Logger().Debug(err.Error())
+			}
+
+			return e.JSON(http.StatusOK, map[string]bool{"ok": true})
+		})
 
 		return se.Next()
 	})

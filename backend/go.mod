@@ -2,7 +2,12 @@ module tbchess
 
 go 1.24.5
 
-require github.com/pocketbase/pocketbase v0.29.0
+require (
+	github.com/SherClockHolmes/webpush-go v1.4.0
+	github.com/pocketbase/dbx v1.11.0
+	github.com/pocketbase/pocketbase v0.29.0
+	github.com/zelenin/go-glicko2 v0.0.1
+)
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
@@ -26,12 +31,10 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/pocketbase/dbx v1.11.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.7 // indirect
-	github.com/zelenin/go-glicko2 v0.0.1 // indirect
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
 	golang.org/x/image v0.29.0 // indirect
