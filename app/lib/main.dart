@@ -8,13 +8,13 @@ import 'package:tbchessapp/pages/event_details.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tbchessapp/config.dart';
+import 'package:tbchessapp/utils/push.dart';
 
 late final SharedPreferences prefs;
 late final AsyncAuthStore store;
 late final PocketBase pb;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
 
   store = AsyncAuthStore(
@@ -24,9 +24,12 @@ Future<void> main() async {
 
   final c = getConfig();
   pb = PocketBase(c['PB_URL'], authStore: store);
+
+  await registerPushWorker();
   
   // await pb.collection('users').authRefresh();
 
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MainApp());
 }
 
@@ -144,6 +147,10 @@ extension ContextExtension on BuildContext {
 
   void setPageLoadRedirected(){
     _pageLoadRedirected = true;
+  }
+
+  void clearPageLoadRedirected(){
+    _pageLoadRedirected = false;
   }
 
   bool getPageLoadRedirected(){

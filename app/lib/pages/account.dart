@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
+import 'package:tbchessapp/utils/push.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -14,6 +15,7 @@ class _AccountPageState extends State<AccountPage> {
   final _usernameController = TextEditingController();
   final _eloController = TextEditingController();
   bool _hideElo = true;
+  bool _notifications = false;
   bool _starterElo = true;
   double _eloSliderValue = 1200.0;
   double _elo = 1200.0;
@@ -32,6 +34,7 @@ class _AccountPageState extends State<AccountPage> {
       _usernameController.text = user.getStringValue("name", "");
       _hideElo = user.getBoolValue("hide_elo", false);
       _starterElo = user.getBoolValue("starter_elo", false);
+      _notifications = user.getStringValue("webpush_sub", "").isNotEmpty;
       _elo = user.getDoubleValue("elo", 1200);
       _eloSliderValue = _elo.toDouble();
       if (!_starterElo) _eloSliderValue = _eloSliderValue.clamp(600.0, 1800.0);
@@ -128,6 +131,40 @@ class _AccountPageState extends State<AccountPage> {
     super.dispose();
   }
 
+  void enablePush() async{
+    try{
+      await setupWebPush();
+      setState(() {
+        _notifications = true;
+      });
+    }catch(e){
+      setState(() {
+        _notifications = false;
+      });
+    }
+  }
+
+  void disablePush() async{
+    try{
+      await cancelWebPush();
+      setState(() {
+        _notifications = false;
+      });
+    }catch(e){
+      setState(() {
+        _notifications = true;
+      });
+    }
+  }
+
+  void togglePush() async{
+    if (_notifications){
+      disablePush();
+    }else{
+      enablePush();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,6 +188,40 @@ class _AccountPageState extends State<AccountPage> {
             if (!_loading) _updateProfile();
           }
         ),
+
+
+        if (supportsPushNotifications()) ...[SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: deniedPushNotifications() ? null : togglePush,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Round Notifications',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const Text(
+                        'Be notified when a new round starts for the events you are playing',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Switch(
+                value: _notifications,
+                onChanged: deniedPushNotifications() ? null : (bool value) {
+                  togglePush();
+                },
+              ),
+            ],
+          ),
+        ],
+
         const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,6 +260,7 @@ class _AccountPageState extends State<AccountPage> {
             ),
           ],
         ),
+
         const SizedBox(height: 24),
         
         // ELO Rating Section

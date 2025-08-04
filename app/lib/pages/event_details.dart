@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:flutter/foundation.dart';
-// import 'package:web/helpers.dart' as html;
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -359,13 +358,19 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         actions: [
             Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              icon: const Icon(Icons.qr_code, size: 32),
-              onPressed: () {
-                _showQRCodeDialog();
-              },
-            ),
-        ),
+              child: !started ? IconButton(
+                  icon: const Icon(Icons.qr_code, size: 32),
+                  onPressed: () {
+                    _showQRCodeDialog();
+                  },
+                ) : IconButton(
+                    icon: const Icon(Icons.account_circle, size: 32),
+                    onPressed: () {
+                       context.clearPageLoadRedirected();
+                       context.go('/account');
+                    },
+              ),
+          ),
         ],
       ),      
       body: RefreshIndicator(onRefresh: () async {
