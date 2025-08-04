@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:flutter/foundation.dart';
-import 'package:web/helpers.dart' as html;
+// import 'package:web/helpers.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -220,9 +221,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   late final _onFocus;
-  void onFocus(html.Event e) {
-    // App resumed
-    _getEvent(background: true);
+  void onFocus(web.Event e) {
+    if (!_loading){
+      // App resumed
+      _getEvent(background: true);
+    }
   }
 
   @override
@@ -231,7 +234,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     _getEvent();
     if (kIsWeb){
       _onFocus = onFocus.toJS;
-      html.window.addEventListener("focus", _onFocus);
+      web.window.addEventListener("focus", _onFocus);
     }
   }
 
@@ -251,7 +254,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     }
 
     if (kIsWeb){
-      html.window.removeEventListener("focus", _onFocus);
+      web.window.removeEventListener("focus", _onFocus);
     }
     super.deactivate();
   }
