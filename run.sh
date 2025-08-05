@@ -75,7 +75,7 @@ fi
 PATH=$PATH:/opt/exodus/bin/:~/.exodus/bin/:$(pwd)/swisser/build swisser --host 127.0.0.1 &
 echo $! > swisser.pid
 trap 'kill $(cat swisser.pid); rm -f swisser.pid; exit' INT
-
+sleep 0.2
 
 args="--http 0.0.0.0:4090 --dev --publicDir ./backend/pb_public_dev"
 if [[ "$mode" == "production" ]]; then
