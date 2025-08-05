@@ -95,7 +95,6 @@ int main(int argc, char **argv) {
                     float result = 0.0f;
                     if (r.contains("result")) result = r["result"].get<float>();
                     
-                    
                     auto w = &players[white];
                     // White played white
                     if (!bye) w->addColor(CPPDubovSystem::Color::WHITE);

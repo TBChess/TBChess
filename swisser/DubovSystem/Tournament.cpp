@@ -2895,7 +2895,8 @@ std::vector<CPPDubovSystem::Match> CPPDubovSystem::Tournament::fixBakuR1(const s
 std::vector<CPPDubovSystem::Match> CPPDubovSystem::Tournament::generatePairings(int r) {
     int max_rounds = getPlayerCount() % 2 == 0 ? getPlayerCount() - 1 : getPlayerCount();
     if (max_rounds < 1) max_rounds = 1;
-    if (max_rounds < this->total_rounds){
+    // TODO: fix swiss matching
+    if (true || max_rounds < this->total_rounds){
         // Do round robin
         return this->makeRoundRobinRound(r);
     }else{
