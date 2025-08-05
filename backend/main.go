@@ -557,16 +557,16 @@ func main() {
 			return e.JSON(http.StatusOK, map[string]string{"publicKey": vapidPublicKey})
 		})
 
-		se.Router.GET("/api/tbchess/test/{event_id}", func(e *core.RequestEvent) error {
-			eventId := e.Request.PathValue("event_id")
+		// se.Router.GET("/api/tbchess/test/{event_id}", func(e *core.RequestEvent) error {
+		// 	eventId := e.Request.PathValue("event_id")
 
-			err := webPushNotifyNewRound(app, eventId, 3)
-			if err != nil {
-				app.Logger().Debug(err.Error())
-			}
+		// 	err := webPushNotifyNewRound(app, eventId, 3)
+		// 	if err != nil {
+		// 		app.Logger().Debug(err.Error())
+		// 	}
 
-			return e.JSON(http.StatusOK, map[string]bool{"ok": true})
-		})
+		// 	return e.JSON(http.StatusOK, map[string]bool{"ok": true})
+		// })
 
 		return se.Next()
 	})
