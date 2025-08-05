@@ -6,8 +6,8 @@ import time
 # Configuration
 API_URL = "http://localhost:8080/round"
 NUM_REQUESTS = 100
-NUM_PLAYERS = 7
-NUM_ROUNDS = 5
+NUM_PLAYERS = 9
+NUM_ROUNDS = 4
 
 def generate_players(num_players):
     """Generate players with random ELO ratings"""
@@ -76,6 +76,9 @@ def stress_test_endpoint(url, num_requests=100):
                             exit(1)
                         pairs = res
                         game_hist += [generate_games(players, r, pairs)]
+
+                        for p in pairs:
+                            print("%s vs %s" % (p['white'], p.get('black', 'bye')))
                     else:
                         print(f"Invalid response format: {res}")
                         exit(1)
