@@ -15,7 +15,7 @@ bool supportsPush(){
     return false; // TODO: mobile
   }
 
-  if (web.window.navigator.serviceWorker.isNull) {
+  if (web.window.navigator.hasProperty("serviceWorker".toJS).toDart) {
     // Service Worker isn't supported on this browser, disable or hide UI.
     return false;
   }
