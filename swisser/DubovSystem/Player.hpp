@@ -185,6 +185,10 @@ public:
      */
     void addOpp(int id);
     /**
+     * Has played opponent
+     */
+    bool hasPlayedOpp(Player &opp);
+    /**
      * Adds a color to the list of colors
      */
     void addColor(Color c);

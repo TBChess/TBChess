@@ -129,6 +129,11 @@ CPPDubovSystem::ColorPreference CPPDubovSystem::Player::getPreferenceStrength() 
     return ColorPreference::ABSOLUTE;
 }
 
+
+bool CPPDubovSystem::Player::hasPlayedOpp(Player &opp) {
+    return this->opp_played.contains(opp.getID());
+}
+
 void CPPDubovSystem::Player::addOpp(int id) {
     this->opp_played.insert(id);
     this->opp_played_return.push_back(id);

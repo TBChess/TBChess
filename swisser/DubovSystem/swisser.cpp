@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
             int nextRound = games.size() + 1;
 
             // Replay game history (optional)
-            int round_hist = 1;
+            int roundHist = 1;
             for (const auto &results : games){
                 for (const auto &r: results){
                     std::string white = r.at("white").get<std::string>();
@@ -112,19 +112,23 @@ int main(int argc, char **argv) {
                         b->setUpfloatPrevStatus(false);
 
                         // They played each other
-                        w->addOpp(b->getID());
-                        w->addOppRating(b->getRating());
-
-                        b->addOpp(w->getID());
-                        b->addOppRating(w->getRating());
+                        if (!w->hasPlayedOpp(*b)){
+                            w->addOpp(b->getID());
+                            w->addOppRating(b->getRating());
+                        }
+                        
+                        if (!b->hasPlayedOpp(*w)){
+                            b->addOpp(w->getID());
+                            b->addOppRating(w->getRating());
+                        }
                         
                         // Keep track of upfloaters
                         if (w->getPoints() > b->getPoints()){
                             b->incrementUpfloat();
-                            if (round_hist == nextRound - 1) b->setUpfloatPrevStatus(true);
+                            if (roundHist == nextRound - 1) b->setUpfloatPrevStatus(true);
                         }else if (w->getPoints() < b->getPoints()){
                             w->incrementUpfloat();
-                            if (round_hist == nextRound - 1) w->setUpfloatPrevStatus(true);
+                            if (roundHist == nextRound - 1) w->setUpfloatPrevStatus(true);
                         }
 
                         // White won
@@ -147,7 +151,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                round_hist++;
+                roundHist++;
             }
             
             for (auto &p : players){
