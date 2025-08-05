@@ -36,13 +36,9 @@ func webPushNotifyNewRound(txApp core.App, eventId string, round int) error {
 		return err
 	}
 
-	txApp.Logger().Debug(fmt.Sprintf("%d", len(notifications)))
-
 	for _, notification := range notifications {
 		s := &webpush.Subscription{}
 		json.Unmarshal([]byte(notification.WebPushSub), s)
-
-		txApp.Logger().Debug(notification.Email + " " + notification.WebPushSub)
 
 		// Send Notification
 
