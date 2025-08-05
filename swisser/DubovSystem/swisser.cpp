@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "httplib.h"
 #include "json.hpp"
 using json = nlohmann::json;
-#define APP_VERSION "0.9"
+#define APP_VERSION "0.9.1"
 
 int main(int argc, char **argv) {
     httplib::Server svr;
@@ -79,7 +79,10 @@ int main(int argc, char **argv) {
                 players[name] = player;
             }
             
+            int nextRound = games.size() + 1;
+
             // Replay game history (optional)
+            int round_hist = 1;
             for (const auto &results : games){
                 for (const auto &r: results){
                     std::string white = r.at("white").get<std::string>();
@@ -97,11 +100,17 @@ int main(int argc, char **argv) {
                     // White played white
                     if (!bye) w->addColor(CPPDubovSystem::Color::WHITE);
 
+                    // Reset prev upfloat
+                    w->setUpfloatPrevStatus(false);
+
                     if (!black.empty() && !bye){
                         auto b = &players[black];
 
                         // Black played black
                         b->addColor(CPPDubovSystem::Color::BLACK);
+
+                        // Reset prev upfloat
+                        b->setUpfloatPrevStatus(false);
 
                         // They played each other
                         w->addOpp(b->getID());
@@ -109,6 +118,15 @@ int main(int argc, char **argv) {
 
                         b->addOpp(w->getID());
                         b->addOppRating(w->getRating());
+                        
+                        // Keep track of upfloaters
+                        if (w->getPoints() > b->getPoints()){
+                            b->incrementUpfloat();
+                            if (round_hist == nextRound - 1) b->setUpfloatPrevStatus(true);
+                        }else if (w->getPoints() < b->getPoints()){
+                            w->incrementUpfloat();
+                            if (round_hist == nextRound - 1) w->setUpfloatPrevStatus(true);
+                        }
 
                         // White won
                         if (result == 1.0){
@@ -129,9 +147,10 @@ int main(int argc, char **argv) {
                         w->setByeStatus(true);
                     }
                 }
+
+                round_hist++;
             }
             
-            int nextRound = games.size() + 1;
             for (auto &p : players){
                 tournament.addPlayer(p.second);
             }
