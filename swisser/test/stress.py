@@ -30,6 +30,7 @@ def generate_games(players, num_rounds, pairs):
 
         if 'bye' in p:
             result = 1.0
+            g['bye'] = True
         else:
             g['black'] = p['black']
         
