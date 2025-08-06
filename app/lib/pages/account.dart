@@ -42,7 +42,11 @@ class _AccountPageState extends State<AccountPage> {
       _eloController.text = _elo.round().toString();
     } on ClientException catch (error){
       if (mounted){
-        context.showNetworkError(error, title: "Cannot get profile");
+        if (!pb.authStore.isValid){
+          context.go("/login");
+        }else{
+          context.showNetworkError(error, title: "Cannot get profile");
+        }
       }
     } finally {
       if (mounted) {
