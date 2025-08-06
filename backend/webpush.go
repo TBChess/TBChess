@@ -81,6 +81,12 @@ func webPushNotifyNewRound(txApp core.App, eventId string, round int) error {
 
 func getVAPIDKeys() (string, string, error) {
 	dataDir := "pb_data"
+	execPath, err := os.Executable()
+	if err != nil {
+		return "", "", err
+	}
+	execDir := filepath.Dir(execPath)
+	dataDir = filepath.Join(execDir, dataDir)
 	keysFile := filepath.Join(dataDir, "vapid_keys.json")
 
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
