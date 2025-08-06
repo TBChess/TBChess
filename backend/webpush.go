@@ -38,7 +38,18 @@ func webPushNotifyNewRound(txApp core.App, eventId string, round int) error {
 
 	for _, notification := range notifications {
 		s := &webpush.Subscription{}
-		json.Unmarshal([]byte(notification.WebPushSub), s)
+
+		err = json.Unmarshal([]byte(notification.WebPushSub), s)
+		if err != nil {
+			txApp.Logger().Warn(fmt.Sprintf("Cannot unmarshal webpush subscription for %s: %s", notification.Email, err))
+			continue
+		}
+
+		// Validate that subscription has required fields
+		if s.Endpoint == "" || s.Keys.P256dh == "" || s.Keys.Auth == "" {
+			txApp.Logger().Warn(fmt.Sprintf("Invalid webpush subscription for %s: missing required fields", notification.Email))
+			continue
+		}
 
 		// Send Notification
 

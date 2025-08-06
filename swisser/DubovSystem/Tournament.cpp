@@ -2896,7 +2896,7 @@ std::vector<CPPDubovSystem::Match> CPPDubovSystem::Tournament::generatePairings(
     int max_rounds = getPlayerCount() % 2 == 0 ? getPlayerCount() - 1 : getPlayerCount();
     if (max_rounds < 1) max_rounds = 1;
     // TODO: fix swiss matching
-    if (max_rounds < this->total_rounds){
+    if (true || max_rounds < this->total_rounds){
         // Do round robin
         return this->makeRoundRobinRound(r);
     }else{

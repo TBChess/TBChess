@@ -6,8 +6,8 @@ import time
 # Configuration
 API_URL = "http://localhost:8080/round"
 NUM_REQUESTS = 100
-NUM_PLAYERS = 9
-NUM_ROUNDS = 4
+NUM_PLAYERS = 8
+NUM_ROUNDS = 5
 
 def generate_players(num_players):
     """Generate players with random ELO ratings"""
