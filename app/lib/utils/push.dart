@@ -15,7 +15,7 @@ bool supportsPush(){
     return false; // TODO: mobile
   }
 
-  if (web.window.navigator.hasProperty("serviceWorker".toJS).toDart) {
+  if (!web.window.navigator.hasProperty("serviceWorker".toJS).toDart) {
     // Service Worker isn't supported on this browser, disable or hide UI.
     return false;
   }
@@ -47,7 +47,6 @@ Future<void> registerPushWorker() async{
 
       web.PushSubscription? sub = await _serviceWorker!.pushManager.getSubscription().toDart;
       if (sub == null) return;
-
     }catch(e){
       debugPrint("Cannot register service worker: ${e.toString()}");
       _webPushDenied = true; // Assume
