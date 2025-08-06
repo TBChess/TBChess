@@ -170,6 +170,15 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         fetchSignups(),
         fetchGames(),
       ]);
+
+      // If the event has started, but the user is not logged-in,
+      // its session probably has expired. Make them log back in
+      bool started = _event!.getBoolValue("started");
+      if (mounted && started && !pb.authStore.isValid){
+        context.setNextPage("/event/${widget.eventId}");
+        context.go("/login");
+        return;
+      }
       
       // If background, we don't want to re-subscribe
       if (background) return;
@@ -310,6 +319,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     final venue = _venue!;
     final event = _event!;
     final userId = pb.authStore.record?.id;
+    final isLoggedIn = pb.authStore.isValid;
 
     String venueLogoUrl = pb.files.getUrl(_venue!, venue.getStringValue("logo")).toString();
     bool venueByob = venue.getBoolValue("byob");
@@ -358,7 +368,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         actions: [
             Padding(
             padding: const EdgeInsets.only(right: 12),
-              child: !started ? IconButton(
+              child: !started || !isLoggedIn ? IconButton(
                   icon: const Icon(Icons.qr_code, size: 32),
                   onPressed: () {
                     _showQRCodeDialog();
