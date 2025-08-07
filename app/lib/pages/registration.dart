@@ -22,7 +22,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _register() async {
-    if (_usernameController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+    final email = _usernameController.text.trim();
+
+    if (email.isEmpty || _passwordController.text.trim().isEmpty) {
       if (mounted) {
         context.showMessageBox('Please fill-in all fields');
       }
@@ -36,7 +38,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       // Create user account
       final body = <String, dynamic>{
-        "email": _usernameController.text.trim(),
+        "email": email,
         "password": _passwordController.text.trim(),
         "passwordConfirm":  _passwordController.text.trim(),
         "emailVisibility": false
@@ -46,11 +48,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       // Automatically sign in the user after successful registration
       await pb.collection('users').authWithPassword(
-        _usernameController.text.trim(),
+        email,
         _passwordController.text.trim(),
       );
 
       if (mounted) {
+        prefs.setString("lastEmailLogin", email);
+
         _usernameController.clear();
         _passwordController.clear();
         
@@ -102,6 +106,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void initState() {
     super.initState();
     _checkInvite();
+
+    try{
+      _usernameController.text = prefs.getString("lastEmailLogin") ?? "";
+    }catch (_){
+      // pass
+    }
   }
 
   @override
