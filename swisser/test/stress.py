@@ -5,9 +5,9 @@ import time
 
 # Configuration
 API_URL = "http://localhost:8080/round"
-NUM_REQUESTS = 100
-NUM_PLAYERS = 8
-NUM_ROUNDS = 5
+NUM_REQUESTS = 1
+NUM_PLAYERS = 6
+NUM_ROUNDS = 3
 
 def generate_players(num_players):
     """Generate players with random ELO ratings"""
@@ -52,6 +52,7 @@ def stress_test_endpoint(url, num_requests=100):
         pairs = []
         game_hist = []
         players = generate_players(NUM_PLAYERS)
+        
 
         for r in range(1, NUM_ROUNDS + 1):
             payload = {
@@ -71,14 +72,71 @@ def stress_test_endpoint(url, num_requests=100):
                 try:
                     res = response.json()
                     if isinstance(res, list) and len(res) > 0:
-                        if len(res) != len(players) // 2 and len(res) != (len(players) // 2) + 1:
+                        expected_rounds = len(players) // 2 if len(players) % 2 == 0 else len(players) // 2 + 1
+                        if len(res) != expected_rounds:
                             print(f"Invalid round numbers generated: {len(res)}")
                             exit(1)
                         pairs = res
                         game_hist += [generate_games(players, r, pairs)]
+                        scores = {}
+                        stats = {}
+
+                        for rnd in game_hist:
+                            for g in rnd:
+                                result = g['result']
+                                w = g['white']
+                                b = None
+                                bye = 'bye' in g and g['bye']
+                                if 'black' in g:
+                                    b = g['black']
+                                if not w in scores:
+                                    scores[w] = 0
+                                if not w in stats:
+                                    stats[w] = {
+                                        'byes': 0,
+                                        'white': 0,
+                                        'black': 0,
+                                    }
+                                    for p in [p['name'] for p in players if p['name'] != w]:
+                                        stats[w][p] = 0
+                                    
+                                if b is not None and not(b in scores):
+                                    scores[b] = 0
+                                    stats[b] = {
+                                        'byes': 0,
+                                        'white': 0,
+                                        'black': 0,
+                                    }
+                                    for p in [p['name'] for p in players if p['name'] != b]:
+                                        stats[b][p] = 0
+
+                                if bye:
+                                    scores[w] += 1
+                                    stats[w]['byes'] += 1
+
+                                else:
+                                    stats[w][b] += 1
+                                    stats[b][w] += 1
+                                    stats[w]['white'] += 1
+                                    stats[b]['black'] += 1
+
+                                    if result == 1.0:
+                                        scores[w] += 1
+                                    elif result == 0:
+                                        scores[b] += 1
+
+                                    elif result == 0.5:
+                                        scores[w] += 0.5
+                                        scores[b] += 0.5                                
 
                         for p in pairs:
-                            print("%s vs %s" % (p['white'], p.get('black', 'bye')))
+                            b = p.get('black', 'bye')
+                            if b == 'bye':
+                                print("%s (%s, W: %s, B: %s) vs %s (-)" % (p['white'], scores[p['white']], stats[p['white']]['white'], stats[p['white']]['black'], b))
+                            else:
+                                print("%s (%s, W: %s, B: %s) vs %s (%s, W: %s, B: %s)" % (p['white'], scores[p['white']], stats[p['white']]['white'], stats[p['white']]['black'], 
+                                                                                          b, scores[b], stats[p['black']]['white'], stats[p['black']]['black']))
+                        # print(stats)
                     else:
                         print(f"Invalid response format: {res}")
                         exit(1)
