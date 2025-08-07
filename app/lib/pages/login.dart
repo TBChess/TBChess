@@ -17,11 +17,11 @@ class _LoginPageState extends State<LoginPage> {
   late final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _signIn() async {
+    final email = _emailController.text.trim();
     try {
       setState(() {
         _isLoading = true;
       });
-      final email = _emailController.text.trim();
       await pb.collection('users').authWithPassword(
         email,
         _passwordController.text.trim(),
@@ -39,7 +39,23 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on ClientException catch (error){
       if (mounted){
-        context.showNetworkError(error, title: "Invalid username or password");
+        if (email.isNotEmpty){
+          if (await context.showConfirmDialog("Invalid username or password", confirmText: "Forgot Password?", cancelText: "Try Again")){
+            try{
+              // Send one time pwd
+              final req = await pb.collection('users').requestOTP(email);
+              if (mounted){
+                context.go("/login_otp/${req.otpId}");
+              }
+            } on ClientException catch (error){
+            if (mounted) {
+              context.showNetworkError(error, title: "Cannot send one time password."); 
+            }
+            }
+          }
+        }else{
+          context.showNetworkError(error, title: "Invalid username or password");
+        }
       }
     } finally {
       if (mounted) {

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tbchessapp/pages/account.dart';
 import 'package:tbchessapp/pages/registration.dart';
 import 'package:tbchessapp/pages/login.dart';
+import 'package:tbchessapp/pages/login_otp.dart';
 import 'package:tbchessapp/pages/events.dart';
 import 'package:tbchessapp/pages/event_details.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -46,6 +47,13 @@ final _router = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/login_otp/:optId',
+      builder: (context, state){
+        final optId = state.pathParameters['optId']!;
+        return LoginOTPPage(optId);
+      }
     ),
     GoRoute(
       path: '/registration',
