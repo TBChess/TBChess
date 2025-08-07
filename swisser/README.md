@@ -1,6 +1,6 @@
 # Swisser
 
-A simple pairing engine server that generates pairings via the FIDE Swiss Dubov system.
+A simple pairing engine server that generates pairings via the FIDE swiss dutch or round robin system.
 
 ## Build
 
@@ -19,6 +19,6 @@ curl -X POST http://localhost:8080/round -d @example.json
 
 ## License
 
-Swisser is based on CPPDubovSystem which is licensed under Apache 2.0 (see LICENSE file).
+Swisser is originally based on bbpPairings which is licensed under Apache 2.0 and is Copyright 2016-2022 Jeremy Bierema. (see Apache-2.0.txt file).
 
-The swisser program is instead licensed under the AGPLv3.
+The swisser program and all modifications in this repository are instead licensed under the AGPLv3.
