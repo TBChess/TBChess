@@ -21,6 +21,7 @@ class _AccountPageState extends State<AccountPage> {
   double _elo = 1200.0;
 
   var _loading = true;
+  var _changingPwd = false;
 
   Future<void> _getAccount() async {
     setState(() {
@@ -42,11 +43,8 @@ class _AccountPageState extends State<AccountPage> {
       _eloController.text = _elo.round().toString();
     } on ClientException catch (error){
       if (mounted){
-        if (!pb.authStore.isValid){
-          context.go("/login");
-        }else{
-          context.showNetworkError(error, title: "Cannot get account");
-        }
+        context.showSnackBar("Session expired");
+        context.go("/login");
       }
     } finally {
       if (mounted) {
@@ -105,6 +103,40 @@ class _AccountPageState extends State<AccountPage> {
           _loading = false;
         });
       }
+    }
+  }
+
+  Future<void> passwordReset(String newPassword) async{
+    setState(() {
+      _changingPwd = true;
+    });
+
+    try{
+      if (pb.authStore.isValid){
+        await pb.collection('users').update(pb.authStore.record!.id, body: {
+          "password": newPassword,
+          "passwordConfirm": newPassword,
+        });
+        await pb.collection('users').authWithPassword(
+          pb.authStore.record!.getStringValue("email"),
+          newPassword,
+        );
+
+        setState(() {
+          _changingPwd = false;
+        });
+
+        if (mounted){
+          context.showMessageBox("Password changed!");
+        }
+      }else{
+        context.showSnackBar("Session expired");
+        context.go("/login");
+      }
+    }finally{
+      setState(() {
+        _changingPwd = false;
+      });
     }
   }
 
@@ -384,6 +416,62 @@ class _AccountPageState extends State<AccountPage> {
           ),
 
         const SizedBox(height: 48),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
+          ElevatedButton(
+          onPressed: _changingPwd ? null : (){
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  final passwordController = TextEditingController();
+                  return AlertDialog(
+                    content: TextField(
+                      controller: passwordController,
+                      autofocus: true,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'New Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      onSubmitted: (value) {
+                        if (value.trim().isNotEmpty) {
+                          Navigator.of(context).pop();
+                          passwordReset(value.trim());
+                        }
+                      },
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (passwordController.text.trim().isNotEmpty) {
+                            Navigator.of(context).pop();
+                            passwordReset(passwordController.text.trim());
+                          }
+                        },
+                        child: const Text('Change Password'),
+                      ),
+                    ],
+                  );
+                },
+              );
+          },
+            child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+              const Icon(Icons.key),
+              const SizedBox(width: 8),
+              const Text('Change Password'),
+              ],
+            ),
+            ),
+        ),
+        ]),
+        const SizedBox(height: 12),
         TextButton(onPressed: _signOut, child: const Text('Sign Out')),
       ],
       ),
