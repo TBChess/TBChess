@@ -22,7 +22,7 @@ class _AccountPageState extends State<AccountPage> {
 
   var _loading = true;
 
-  Future<void> _getProfile() async {
+  Future<void> _getAccount() async {
     setState(() {
       _loading = true;
     });
@@ -45,7 +45,7 @@ class _AccountPageState extends State<AccountPage> {
         if (!pb.authStore.isValid){
           context.go("/login");
         }else{
-          context.showNetworkError(error, title: "Cannot get profile");
+          context.showNetworkError(error, title: "Cannot get account");
         }
       }
     } finally {
@@ -58,7 +58,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   /// Called when user taps `Update` button
-  Future<void> _updateProfile({bool showSaved = true}) async {
+  Future<void> _updateAccount({bool showSaved = true}) async {
     setState(() {
       _loading = true;
     });
@@ -89,11 +89,11 @@ class _AccountPageState extends State<AccountPage> {
 
       await pb.collection('users').update(pb.authStore.record!.id, body: body);
       if (mounted) {
-        if (showSaved) context.showSnackBar('Profile saved!');
+        if (showSaved) context.showSnackBar('Account saved!');
       }
      } on ClientException catch (error){
       if (mounted){
-        context.showNetworkError(error, title: "Cannot update profile");
+        context.showNetworkError(error, title: "Cannot update account");
       }
      } on FormatException catch (error){
       if (mounted){
@@ -125,7 +125,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void initState() {
     super.initState();
-    _getProfile();
+    _getAccount();
   }
 
   @override
@@ -173,7 +173,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: const Text('Profile'), 
+      title: const Text('Account'), 
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
@@ -197,14 +197,14 @@ class _AccountPageState extends State<AccountPage> {
                   });
                 },
                 onFieldSubmitted:(value) {
-                  if (!_loading) _updateProfile();
+                  if (!_loading) _updateAccount();
                 },
               ),
             ),
             if (_usernameController.text.trim() != (pb.authStore.record?.getStringValue("name", "") ?? "")) ...[
             const SizedBox(width: 8),
             ElevatedButton(
-              onPressed: _loading ? null : _updateProfile,
+              onPressed: _loading ? null : _updateAccount,
 
               child: const Icon(Icons.check),
             ) ,
@@ -254,7 +254,7 @@ class _AccountPageState extends State<AccountPage> {
                 onTap: _loading ? null : () {
                   setState(() {
                     _hideElo = !_hideElo;
-                    _updateProfile(showSaved: false);
+                    _updateAccount(showSaved: false);
                   });
                 },
                 child: Column(
@@ -278,7 +278,7 @@ class _AccountPageState extends State<AccountPage> {
                 setState(() {
                   _hideElo = value;
                 });
-                _updateProfile(showSaved: false);
+                _updateAccount(showSaved: false);
               },
             ),
           ],
@@ -331,7 +331,7 @@ class _AccountPageState extends State<AccountPage> {
                       }
                     },
                     onFieldSubmitted: (value) {
-                      if (!_loading) _updateProfile();
+                      if (!_loading) _updateAccount();
                     },
                   ),
                 )
