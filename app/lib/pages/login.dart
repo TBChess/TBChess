@@ -21,11 +21,13 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = true;
       });
+      final email = _emailController.text.trim();
       await pb.collection('users').authWithPassword(
-        _emailController.text.trim(),
+        email,
         _passwordController.text.trim(),
       );
       if (mounted) {
+        prefs.setString("lastEmailLogin", email);
         _emailController.clear();
         _passwordController.clear();
 
@@ -45,6 +47,16 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    try{
+      _emailController.text = prefs.getString("lastEmailLogin") ?? "";
+    }catch (_){
+      // pass
     }
   }
 
