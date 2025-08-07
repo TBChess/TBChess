@@ -185,12 +185,31 @@ class _AccountPageState extends State<AccountPage> {
       body: ListView(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
       children: [
-        TextFormField(
-          controller: _usernameController,
-          decoration: const InputDecoration(labelText: 'Username'),
-          onFieldSubmitted:(value) {
-            if (!_loading) _updateProfile();
-          }
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _usernameController,
+                decoration: const InputDecoration(labelText: 'Username'),
+                onChanged: (value) {
+                  setState(() {
+                    // Trigger rebuild to show/hide button
+                  });
+                },
+                onFieldSubmitted:(value) {
+                  if (!_loading) _updateProfile();
+                },
+              ),
+            ),
+            if (_usernameController.text.trim() != (pb.authStore.record?.getStringValue("name", "") ?? "")) ...[
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: _loading ? null : _updateProfile,
+
+              child: const Icon(Icons.check),
+            ) ,
+            ],
+          ],
         ),
 
 
@@ -365,15 +384,6 @@ class _AccountPageState extends State<AccountPage> {
           ),
 
         const SizedBox(height: 48),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
-          ElevatedButton(
-          onPressed: _loading ? null : _updateProfile,
-          child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
-            child: Text(_loading ? 'Saving...' : 'Update'),
-          ),
-        ),
-        ]),
-        const SizedBox(height: 18),
         TextButton(onPressed: _signOut, child: const Text('Sign Out')),
       ],
       ),
