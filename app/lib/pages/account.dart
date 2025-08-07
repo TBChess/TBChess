@@ -365,10 +365,14 @@ class _AccountPageState extends State<AccountPage> {
           ),
 
         const SizedBox(height: 48),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
           ElevatedButton(
           onPressed: _loading ? null : _updateProfile,
-          child: Text(_loading ? 'Saving...' : 'Update'),
+          child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
+            child: Text(_loading ? 'Saving...' : 'Update'),
+          ),
         ),
+        ]),
         const SizedBox(height: 18),
         TextButton(onPressed: _signOut, child: const Text('Sign Out')),
       ],
