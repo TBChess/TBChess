@@ -160,6 +160,10 @@ func main() {
 			return e.BadRequestError("Cannot update ELO", nil)
 		}
 
+		if e.Auth.GetBool("verified") != e.Record.GetBool("verified") {
+			return e.BadRequestError("Cannot update verified", nil)
+		}
+
 		return e.Next()
 	})
 
