@@ -16,7 +16,7 @@ class LoginOTPPage extends StatefulWidget {
 class _LoginOTPPageState extends State<LoginOTPPage> {
   bool _isLoading = false;
 
-  Future<void> _signIn(String otp) async {
+  Future<bool> _signIn(String otp) async {
     try {
       setState(() {
         _isLoading = true;
@@ -32,10 +32,12 @@ class _LoginOTPPageState extends State<LoginOTPPage> {
           context.go("/account");
         }
       }
+      return true;
     } on ClientException catch (error){
       if (mounted){
         context.showNetworkError(error, title: "Invalid one time code");
       }
+      return false;
     } finally {
       if (mounted) {
         setState(() {
@@ -76,13 +78,9 @@ class _LoginOTPPageState extends State<LoginOTPPage> {
             autoFocus: true,
             //set to true to show as box or false to show as dash
             showFieldAsBox: true, 
-            //runs when a code is typed in
-            onCodeChanged: (String code) {
-                //handle validation or checks here           
-            },
             //runs when every textfield is filled
-            onSubmit: (String otp) async{
-                await _signIn(otp);
+            onSubmit: (String otp, VoidCallback clear) async{
+              await _signIn(otp);
             }, // end onSubmit
         ),
           const SizedBox(height: 18),

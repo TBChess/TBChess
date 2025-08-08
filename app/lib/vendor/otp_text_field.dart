@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-typedef OnCodeEnteredCompletion = void Function(String value);
+typedef OnCodeEnteredCompletion = void Function(String value, VoidCallback clear);
 typedef OnCodeChanged = void Function(String value);
 typedef HandleControllers = void Function(List<TextEditingController?> controllers);
 
@@ -207,13 +207,8 @@ class _OtpTextFieldState extends State<OtpTextField> {
         focusNode: FocusNode(),
         onKeyEvent: (KeyEvent event) {
           if (event is KeyDownEvent) {
-            if (event.physicalKey == PhysicalKeyboardKey.backspace || event.physicalKey == PhysicalKeyboardKey.delete){
-              _textControllers.forEach((tc) => tc!.text = "");
-              _verificationCode = List<String?>.filled(widget.numberOfFields, null);
-              try{
-                _focusNodes[0]?.requestFocus();
-              }catch(e){
-              }
+            if (event.logicalKey == LogicalKeyboardKey.backspace || event.logicalKey == LogicalKeyboardKey.delete){
+              _clear();
             }
           }
         },
@@ -347,17 +342,26 @@ class _OtpTextFieldState extends State<OtpTextField> {
     }
   }
 
+  void _clear(){
+    _textControllers.forEach((tc) => tc!.text = "");
+    _verificationCode = List<String?>.filled(widget.numberOfFields, null);
+    try{
+      _focusNodes[0]?.requestFocus();
+    }catch(e){
+    }
+  }
+
   void _onSubmit({required List<String?> verificationCode}) {
     if (verificationCode.every((String? code) => code != null && code != '')) {
       if (widget.onSubmit != null) {
-        widget.onSubmit!(verificationCode.join());
+        widget.onSubmit!(verificationCode.join(), _clear);
       }
     }
   }
 
   void _onCodeChanged({required String verificationCode}) {
     if (widget.onCodeChanged != null) {
-      widget.onCodeChanged!(verificationCode);
+      widget.onCodeChanged!(verificationCode, _clear);
     }
   }
 
