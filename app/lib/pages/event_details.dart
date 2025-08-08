@@ -174,9 +174,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       // If the event has started, but the user is not logged-in,
       // its session probably has expired. Make them log back in
       bool started = _event!.getBoolValue("started");
-      if (mounted && started && !pb.authStore.isValid){
+      bool finished = _event!.getBoolValue("finished");
+
+      if (mounted && (started && !finished) && !pb.authStore.isValid){
         context.setNextPage("/event/${widget.eventId}");
-        context.go("/login");
+        context.goAuthPage();
         return;
       }
       

@@ -149,7 +149,7 @@ class _AccountPageState extends State<AccountPage> {
       }
     } finally {
       if (mounted) {
-        context.go("/");
+        context.go("/login");
       }
     }
   }

@@ -22,7 +22,7 @@ class _EventVSState extends State<EventVS>{
       final gid = widget.game.id;
       
       if (!pb.authStore.isValid){
-        context.go("/");
+        context.goAuthPage();
         return;
       }
       

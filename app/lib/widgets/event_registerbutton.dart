@@ -34,7 +34,7 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
       
       if (!pb.authStore.isValid){
         context.setNextPage("/event/$eid");
-        context.go("/");
+        context.goAuthPage();
         return;
       }
 

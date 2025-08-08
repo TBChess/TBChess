@@ -20,7 +20,7 @@ class _EventGameListState extends State<EventGameList>  {
   Future<void> _adjustScore(String gameId, MatchAdjustmentResult matchResult) async{
   try{
       if (!pb.authStore.isValid){
-        context.go("/");
+        context.goAuthPage();
         return;
       }
       

@@ -38,7 +38,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      redirect: (context, state) => pb.authStore.isValid ? '/events' : '/registration',
+      redirect: (context, state) => '/events' //pb.authStore.isValid ? '/events' : '/registration',
     ),
     GoRoute(
       path: '/account',
@@ -74,7 +74,6 @@ final _router = GoRouter(
           if (invite.isNotEmpty && !pb.authStore.isValid){
             context.setNextPage("/event/$eventId");
             context.setInvite(invite);
-            return RegistrationPage();
           }
         }
 
@@ -163,6 +162,14 @@ extension ContextExtension on BuildContext {
 
   bool getPageLoadRedirected(){
     return _pageLoadRedirected;
+  }
+
+  goAuthPage(){
+    if ((prefs.getString("lastEmailLogin") ?? "").isEmpty){
+      go("/registration");
+    }else{
+      go("/login");
+    }
   }
 
   void showSnackBar(String message, {bool isError = false}) {

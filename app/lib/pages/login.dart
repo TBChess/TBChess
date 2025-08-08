@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   late final TextEditingController _emailController = TextEditingController();
   late final TextEditingController _passwordController = TextEditingController();
+  late final FocusNode _passwordFocus = FocusNode();
 
   Future<void> _signIn() async {
     final email = _emailController.text.trim();
@@ -52,6 +53,8 @@ class _LoginPageState extends State<LoginPage> {
               context.showNetworkError(error, title: "Cannot send one time password."); 
             }
             }
+          }else{
+            _passwordFocus.requestFocus();
           }
         }else{
           context.showNetworkError(error, title: "Invalid username or password");
@@ -100,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 18),
           TextFormField(
             controller: _passwordController,
+            focusNode: _passwordFocus,
             decoration: const InputDecoration(labelText: 'Password'),
             obscureText: true,
             onFieldSubmitted:(value) {
