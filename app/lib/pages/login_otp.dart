@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:tbchessapp/vendor/otp_text_field.dart';
 
 class LoginOTPPage extends StatefulWidget {
   final String otpId;
@@ -34,7 +34,7 @@ class _LoginOTPPageState extends State<LoginOTPPage> {
       }
     } on ClientException catch (error){
       if (mounted){
-        context.showNetworkError(error, title: "Invalid one time password");
+        context.showNetworkError(error, title: "Invalid one time code");
       }
     } finally {
       if (mounted) {
@@ -64,7 +64,7 @@ class _LoginOTPPageState extends State<LoginOTPPage> {
         children: [
           const SizedBox(height: 24),
           const Text(
-            'We sent a one-time password to your email:',
+            'We sent a one-time code to your email:',
             style: TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),
@@ -73,6 +73,7 @@ class _LoginOTPPageState extends State<LoginOTPPage> {
             numberOfFields: 6,
             borderColor: Colors.blue,
             focusedBorderColor: Colors.blue,
+            autoFocus: true,
             //set to true to show as box or false to show as dash
             showFieldAsBox: true, 
             //runs when a code is typed in

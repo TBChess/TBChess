@@ -459,7 +459,7 @@ class _AccountPageState extends State<AccountPage> {
               );
           },
             child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
