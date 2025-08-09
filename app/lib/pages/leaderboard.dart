@@ -26,7 +26,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
       _venue = await pb.collection("venues").getOne(widget.venueId);
       _games = await pb.collection("games_list").getFullList(
-          filter: 'event.venue="${widget.venueId}"',
+          filter: 'event.venue="${widget.venueId}" && event.finished = 1 && finished = 1',
         );
       
     } on ClientException catch (error){
