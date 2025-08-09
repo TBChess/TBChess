@@ -6,6 +6,7 @@ import 'package:tbchessapp/pages/login.dart';
 import 'package:tbchessapp/pages/login_otp.dart';
 import 'package:tbchessapp/pages/events.dart';
 import 'package:tbchessapp/pages/event_details.dart';
+import 'package:tbchessapp/pages/leaderboard.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tbchessapp/config.dart';
@@ -80,6 +81,14 @@ final _router = GoRouter(
         return EventDetailsPage(eventId);
       },
     ),
+
+    GoRoute(
+      path: '/leaderboard/:venueId',
+      builder: (context, state) {
+        final venueId = state.pathParameters['venueId']!;
+        return LeaderBoardPage(venueId);
+      },
+    ),
   ],
 );
 
@@ -133,6 +142,7 @@ class MainApp extends StatelessWidget {
 String _nextPage = "";
 String _invite = "";
 bool _pageLoadRedirected = false;
+List<String> _routesStack = [];
 
 extension ContextExtension on BuildContext {
 
@@ -169,6 +179,21 @@ extension ContextExtension on BuildContext {
       go("/registration");
     }else{
       go("/login");
+    }
+  }
+
+  goPush(String location){
+    String? current = GoRouterState.of(this).uri.toString();
+    if (current != null) _routesStack.add(current);
+    go(location);
+  }
+
+  goBackOrTo(String fallback){
+    if (_routesStack.isNotEmpty) {
+      final previousRoute = _routesStack.removeLast();
+      go(previousRoute);
+    } else {
+      go(fallback);
     }
   }
 

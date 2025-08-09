@@ -379,7 +379,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     icon: const Icon(Icons.account_circle, size: 32),
                     onPressed: () {
                        context.clearPageLoadRedirected();
-                       context.go('/account');
+                       context.goPush('/account');
                     },
               ),
           ),
@@ -534,7 +534,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                   ),
 
                 const SizedBox(height: 16),
-                                // Date and time
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -587,6 +586,26 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                         overflow: TextOverflow.ellipsis
                                       ),
                                       ],
+                                    ),
+
+                                    const SizedBox(height: 8),
+                                                      
+                                    // Season leaderboard button
+                                    SizedBox(
+                                      height: 32,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          context.goPush('/leaderboard/${venue.id}');
+                                        },
+                                        icon: const Icon(Icons.emoji_events, size: 16),
+                                        label: const Text('Season', style: TextStyle(fontSize: 12)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.transparent,
+                                          side: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                                          overlayColor: Colors.grey.withValues(alpha: 0.1),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -657,6 +676,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             ],                            
                           ),
                         ),
+                        
                         ]),
                       ],
                     ),

@@ -210,7 +210,7 @@ class _AccountPageState extends State<AccountPage> {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
-          context.go('/events');
+          context.goBackOrTo('/events');
         },
       ),
       ),

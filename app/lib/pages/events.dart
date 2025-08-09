@@ -81,12 +81,16 @@ class _EventsPageState extends State<EventsPage> {
         actions: [
             Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: pb.authStore.isValid ? IconButton(
+            child: IconButton(
               icon: const Icon(Icons.account_circle, size: 32),
               onPressed: () {
-               context.go('/account');
+               if (pb.authStore.isValid){
+                context.goPush('/account');
+               }else{
+                context.go('/login');
+               }
               },
-            ) : null,
+            ),
           ),
         ],
       ),
@@ -144,7 +148,7 @@ class _EventsPageState extends State<EventsPage> {
                                     width: 56,
                                     child: venueLogoUrl.isNotEmpty
                                         ? Image.network(venueLogoUrl, width: 48)
-                                        : Icon(Icons.event, size: 48, color: Colors.blueAccent),
+                                        : Icon(Icons.event, size: 48, color: Colors.white),
                                   ),
                                   const SizedBox(width: 12),
                                   Column(

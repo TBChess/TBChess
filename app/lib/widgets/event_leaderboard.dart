@@ -6,8 +6,9 @@ import 'package:pocketbase/pocketbase.dart';
 class EventLeaderboard extends StatelessWidget  {
   final List<RecordModel> games;
   final String title;
+  final bool wdl;
 
-  const EventLeaderboard(this.games, {this.title = "Standings", super.key});
+  const EventLeaderboard(this.games, {this.title = "Standings", this.wdl = true, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +120,7 @@ class EventLeaderboard extends StatelessWidget  {
                               children: [
                                 Expanded(flex: 1, child: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
                                 Expanded(flex: 3, child: Text('Player', style: TextStyle(fontWeight: FontWeight.bold))),
-                                Expanded(flex: 2, child: Text('W/D/L', style: TextStyle(fontWeight: FontWeight.bold))),
+                                if (wdl) Expanded(flex: 2, child: Text('W/D/L', style: TextStyle(fontWeight: FontWeight.bold))),
                                 Expanded(flex: 1, child: Text(wideScreen ? 'Points' : 'Pts', style: TextStyle(fontWeight: FontWeight.bold))),
                               ],
                             ),
@@ -133,7 +134,7 @@ class EventLeaderboard extends StatelessWidget  {
                                 child: printRank ? Text('${index + 1}') : Text(''),
                               ),
                               Expanded(flex: 3, child: Text(player['name'], overflow: TextOverflow.ellipsis, maxLines: 1,)),
-                              Expanded(flex: 2, child: Text('${player['wins']}/${player['draws']}/${player['losses']}')),
+                              if (wdl) Expanded(flex: 2, child: Text('${player['wins']}/${player['draws']}/${player['losses']}')),
                               Expanded(flex: 1, child: Text('${player['pts']}')),
                             ],
                           ),
