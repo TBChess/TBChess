@@ -7,6 +7,7 @@ import 'package:tbchessapp/pages/login_otp.dart';
 import 'package:tbchessapp/pages/events.dart';
 import 'package:tbchessapp/pages/event_details.dart';
 import 'package:tbchessapp/pages/leaderboard.dart';
+import 'package:tbchessapp/pages/clock.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tbchessapp/config.dart';
@@ -87,6 +88,13 @@ final _router = GoRouter(
       builder: (context, state) {
         final venueId = state.pathParameters['venueId']!;
         return LeaderBoardPage(venueId);
+      },
+    ),
+
+    GoRoute(
+      path: '/clock/:time',
+      builder: (context, state){
+        return ClockPage(time: state.pathParameters['time']!);
       },
     ),
   ],

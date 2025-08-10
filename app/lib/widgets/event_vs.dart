@@ -7,8 +7,9 @@ import 'package:tbchessapp/widgets/report_score_dialog.dart';
 
 class EventVS extends StatefulWidget  {
   final RecordModel game;
+  final String time;
 
-  const EventVS(this.game, {super.key});
+  const EventVS(this.game, this.time, {super.key});
 
   @override
   State<EventVS> createState() => _EventVSState();
@@ -131,7 +132,7 @@ class _EventVSState extends State<EventVS>{
       }
 
       Widget bottomText = Container();
-      List<Widget> reportScore = [Container()];
+      List<Widget> actionButtons = [Container()];
 
       String userColor = "";
       if (userId != null){
@@ -158,20 +159,39 @@ class _EventVSState extends State<EventVS>{
                 ),              
               );
             
-            reportScore = [ const SizedBox(height: 16), ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: const Size(160, 52),
-              ),
-              onPressed: () => {
-                ReportScoreDialog.show(
-                  context,
-                  onResultSelected: _reportScore,
-                  title: "Round ${game.getIntValue("round")}"
+            actionButtons = [ const SizedBox(height: 16), 
+              Column(children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size(160, 52),
+                  ),
+                  onPressed: () => {
+                    ReportScoreDialog.show(
+                      context,
+                      onResultSelected: _reportScore,
+                      title: "Round ${game.getIntValue("round")}"
+                    )
+                  },
+                  icon: Icon(Icons.assignment_turned_in),
+                  label: Text("Report Score")
+                ),
+                const SizedBox(height: 16), 
+                ElevatedButton.icon(
+                  onPressed: () {
+                    context.goPush('/clock/${widget.time}');
+                  },
+                  icon: const Icon(Icons.punch_clock, size: 16),
+                  label: const Text('Open Clock', style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    side: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                    overlayColor: Colors.grey.withValues(alpha: 0.1),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  ),
                 )
-              },
-              child: Text("Report Score")
-            )];
+                ]
+              ,)];
           }
         }
       }
@@ -318,7 +338,7 @@ class _EventVSState extends State<EventVS>{
         Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [
             bottomText,
-            ...reportScore,
+            ...actionButtons,
         ],)
       ],
     );
