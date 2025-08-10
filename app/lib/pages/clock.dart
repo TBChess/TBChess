@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -26,6 +27,9 @@ class _ClockPageState extends State<ClockPage> {
   double delayPlayer1 = 0;
   double delayPlayer2 = 0;
   int playerToMove = 0;
+  bool blink1 = false;
+  bool blink2 = false;
+  int blinkStep = 0;
 
   int delay = 0;
   int increment = 0;
@@ -47,10 +51,11 @@ class _ClockPageState extends State<ClockPage> {
         // pass
       }
     }
+    blink1 = blink2 = false;
     timePlayer1 = Duration(microseconds: time.inMicroseconds) + Duration(milliseconds: 999);
     timePlayer2 = Duration(microseconds: time.inMicroseconds) + Duration(milliseconds: 999);
     delayPlayer1 = delayPlayer2 = 0;
-    clockState = ClockState.init;
+    clockState = ClockState.init;    
   }
 
   @override
@@ -117,6 +122,19 @@ class _ClockPageState extends State<ClockPage> {
           }
         }
       });
+    } else if (clockState == ClockState.finish){
+      setState((){
+        int curBlinkStep = (DateTime.now().millisecond ~/ 500) % 2;
+        if (curBlinkStep != blinkStep){
+          blinkStep = curBlinkStep;
+          if (timePlayer1.inMilliseconds <= 0) {
+            blink1 = !blink1;
+          }
+          if (timePlayer2.inMilliseconds <= 0) {
+            blink2 = !blink2;
+          }
+        }
+      });
     } else {
       timer.cancel();
     }
@@ -125,6 +143,7 @@ class _ClockPageState extends State<ClockPage> {
   void startClock(int player) {
     if (clockState != ClockState.init) return;
     setState(() {
+      blink1 = blink2 = false;
       clockState = ClockState.started;
       if (player == 1){
         playerToMove = 2;
@@ -185,8 +204,10 @@ class _ClockPageState extends State<ClockPage> {
 
   @override
   build(BuildContext context) {
-    String displayedTimePlayer1 = duration2str(timePlayer1);
-    String displayedTimePlayer2 = duration2str(timePlayer2);
+    String displayTime1 = duration2str(timePlayer1);
+    String displayTime2 = duration2str(timePlayer2);
+    if (blink1 && clockState == ClockState.finish) displayTime1 = "";
+    if (blink2 && clockState == ClockState.finish) displayTime2 = "";
 
     List<Widget> buttons = [];
 
@@ -194,6 +215,7 @@ class _ClockPageState extends State<ClockPage> {
       buttons.add(
         FloatingActionButton(
           onPressed: () => onRestartPressed(context),
+          heroTag: null,
           backgroundColor: Colors.blue,
           child: Icon(Icons.replay),
         ),
@@ -202,23 +224,26 @@ class _ClockPageState extends State<ClockPage> {
     if (clockState == ClockState.started){
       buttons.add(FloatingActionButton(
         onPressed: onPausePressed,
+        heroTag: null,
         backgroundColor: Colors.blue,
         child: Icon(Icons.pause),
+      ));
+    }
+    if (clockState == ClockState.paused){
+      buttons.add(FloatingActionButton(
+        onPressed: onPausePressed,
+        heroTag: null,
+        backgroundColor: Colors.blue,
+        child: Icon(Icons.play_arrow),
       ));
     }
     if (clockState == ClockState.init || clockState == ClockState.paused){
       buttons.add(FloatingActionButton(
         onPressed: onHomePressed,
+        heroTag: null,
         backgroundColor: Colors.blue,
         child: Icon(Icons.home),
       )); 
-    }
-    if (clockState == ClockState.paused){
-      buttons.add(FloatingActionButton(
-        onPressed: onPausePressed,
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.play_arrow),
-      ));
     }
 
     return Scaffold(
@@ -228,7 +253,7 @@ class _ClockPageState extends State<ClockPage> {
                   Expanded(
                       flex: 3,
                       child: Transform.rotate(
-                        angle: 3.14,
+                        angle: pi,
                         child: Stack(
                           children: [
                             Material(
@@ -242,7 +267,7 @@ class _ClockPageState extends State<ClockPage> {
                                     child: Stack(children: [
                                       Center(
                                         child: Text(
-                                          displayedTimePlayer2,
+                                          displayTime2,
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 90,
@@ -250,7 +275,6 @@ class _ClockPageState extends State<ClockPage> {
                                         ),
                                       ),
                                     ]))),
-                            // Text(player2DelayProgress.toString()),
                           ],
                         ),
                       )),
@@ -269,7 +293,7 @@ class _ClockPageState extends State<ClockPage> {
                                 child: Stack(children: [
                                   Center(
                                     child: Text(
-                                      displayedTimePlayer1,
+                                      displayTime1,
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 90,
@@ -277,7 +301,6 @@ class _ClockPageState extends State<ClockPage> {
                                     ),
                                   ),
                                 ]))),
-                        // Text(player1DelayProgress.toString()),
                       ],
                     ),
                   ),

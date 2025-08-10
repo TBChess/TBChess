@@ -32,6 +32,11 @@
   <title>TB Chess</title>
   <link rel="manifest" href="manifest.json">
   <style>html,body{background: #141218;}</style>
+  <script>
+  window.onbeforeunload = function() {
+    return window.location.hash.startsWith("#/clock");
+  };
+  </script>
 </head>
 <body>
   <div id="spinner-container"><div class="material-spinner"></div></div>
