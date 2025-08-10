@@ -140,12 +140,17 @@ class _ClockPageState extends State<ClockPage> {
   }
 
   void onPlayerTap(int player) {
-    // Keep screen turned on 
+    // Keep screen turned on and go fullscreen
     if (kIsWeb){
       try{
         web.window.navigator.wakeLock.request('screen');
       }catch(_){
         // pass
+      }
+      try{
+        web.document.documentElement?.requestFullscreen();
+      }catch(_){
+
       }
     }
 
