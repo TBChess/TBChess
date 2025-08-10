@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:web/web.dart' as web;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
 import 'package:go_router/go_router.dart';
@@ -166,7 +168,7 @@ class _EventVSState extends State<EventVS>{
                   backgroundColor: Colors.blue,
                   minimumSize: const Size(160, 52),
                   ),
-                  onPressed: () => {
+                  onPressed: _reportingScore ? null : () => {
                     ReportScoreDialog.show(
                       context,
                       onResultSelected: _reportScore,
@@ -179,6 +181,13 @@ class _EventVSState extends State<EventVS>{
                 const SizedBox(height: 16), 
                 ElevatedButton.icon(
                   onPressed: () {
+                    if (kIsWeb){
+                      try{
+                        web.document.documentElement?.requestFullscreen();
+                      }catch(_){
+                        // Pass
+                      }
+                    }
                     context.goPush('/clock/${widget.time}');
                   },
                   icon: const Icon(Icons.punch_clock, size: 16),

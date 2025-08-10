@@ -147,11 +147,6 @@ class _ClockPageState extends State<ClockPage> {
       }catch(_){
         // pass
       }
-      try{
-        web.document.documentElement?.requestFullscreen();
-      }catch(_){
-
-      }
     }
 
     if (clockState == ClockState.init) {
