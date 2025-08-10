@@ -181,13 +181,6 @@ class _EventVSState extends State<EventVS>{
                 const SizedBox(height: 16), 
                 ElevatedButton.icon(
                   onPressed: () {
-                    if (kIsWeb){
-                      try{
-                        web.document.documentElement?.requestFullscreen();
-                      }catch(_){
-                        // Pass
-                      }
-                    }
                     context.goPush('/clock/${widget.time}');
                   },
                   icon: const Icon(Icons.punch_clock, size: 16),
