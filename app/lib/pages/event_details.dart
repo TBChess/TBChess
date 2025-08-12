@@ -79,7 +79,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Share Invite'),
+          title: const Text('Invite Player'),
           content: SizedBox(
             width: 400,
             child: Column(
@@ -367,23 +367,47 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             context.go('/events');
           },
         ),
-        actions: [
+        actions: isLoggedIn ? [
             Padding(
             padding: const EdgeInsets.only(right: 12),
-              child: !started || !isLoggedIn ? IconButton(
-                  icon: const Icon(Icons.qr_code, size: 32),
-                  onPressed: () {
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (String value) {
+                switch (value) {
+                  case 'Account':
+                    context.clearPageLoadRedirected();
+                    context.goPush('/account');
+                    break;
+                  case 'Invite':
                     _showQRCodeDialog();
-                  },
-                ) : IconButton(
-                    icon: const Icon(Icons.account_circle, size: 32),
-                    onPressed: () {
-                       context.clearPageLoadRedirected();
-                       context.goPush('/account');
-                    },
-              ),
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem<String>(
+                  value: 'Account',
+                  child: Row(
+                    children: [
+                      Icon(Icons.account_circle, size: 24),
+                      SizedBox(width: 8),
+                      Text("Account"),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Invite',
+                  child: Row(
+                    children: [
+                      Icon(Icons.qr_code, size: 24),
+                      SizedBox(width: 8),
+                      Text("Invite Player"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ] : [],
       ),      
       body: RefreshIndicator(onRefresh: () async {
         await _getEvent(background: true, ignoreTime: true);
