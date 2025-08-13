@@ -1,17 +1,18 @@
+import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:web/web.dart' as web;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tbchessapp/utils/games.dart';
 import 'package:tbchessapp/widgets/report_score_dialog.dart';
+import 'package:tbchessapp/utils/date.dart';
 
 class EventVS extends StatefulWidget  {
   final RecordModel game;
   final String time;
+  final int submitScoreCooldown;
 
-  const EventVS(this.game, this.time, {super.key});
+  const EventVS(this.game, this.time, {this.submitScoreCooldown = 0, super.key});
 
   @override
   State<EventVS> createState() => _EventVSState();
@@ -19,6 +20,8 @@ class EventVS extends StatefulWidget  {
 
 class _EventVSState extends State<EventVS>{
   bool _reportingScore = false;
+  Timer? _cooldownTimer;
+  int _reportCooldown = 0;
 
  Future<void> _reportScore(MatchResult matchResult) async{
   try{
@@ -71,6 +74,25 @@ class _EventVSState extends State<EventVS>{
     }
   }
 
+  void cooldownTick(Timer t){
+    setState((){
+      if (_reportCooldown > 0){
+        _reportCooldown -= 1;
+      }else{
+        t.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose(){
+    if (_cooldownTimer != null){
+      _cooldownTimer!.cancel();
+      _cooldownTimer = null;
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
       RecordModel game = widget.game;
@@ -81,6 +103,13 @@ class _EventVSState extends State<EventVS>{
       bool whiteWon = finished && result == 1.0;
       bool blackWon = finished && result == 0.0;
       bool draw = finished && result == 0.5;
+      final created = parseDateString(game.getStringValue("created"));
+      if (created != null){
+        _reportCooldown = max(0, widget.submitScoreCooldown - max(0, DateTime.now().difference(created).inSeconds));
+        if (_reportCooldown > 0 && _cooldownTimer == null){
+          _cooldownTimer = Timer.periodic(Duration(milliseconds: 1000), cooldownTick);
+        }
+      }
       final userId = pb.authStore.record?.id;
 
       final winIcon =  Icon(
@@ -168,7 +197,7 @@ class _EventVSState extends State<EventVS>{
                   backgroundColor: Colors.blue,
                   minimumSize: const Size(160, 52),
                   ),
-                  onPressed: _reportingScore ? null : () => {
+                  onPressed: (_reportingScore || _reportCooldown > 0) ? null : () => {
                     ReportScoreDialog.show(
                       context,
                       onResultSelected: _reportScore,
@@ -176,7 +205,7 @@ class _EventVSState extends State<EventVS>{
                     )
                   },
                   icon: Icon(Icons.assignment_turned_in),
-                  label: Text("Report Score")
+                  label: Text(_reportCooldown > 0 ? "Report Score ($_reportCooldown)" : "Report Score")
                 ),
                 const SizedBox(height: 16), 
                 ElevatedButton.icon(
