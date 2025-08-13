@@ -93,6 +93,26 @@ class _EventVSState extends State<EventVS>{
     super.dispose();
   }
 
+  void showPlayerInfo(String username, double elo){
+    bool hideElo = pb.authStore.isValid && pb.authStore.record!.getBoolValue("hide_elo", false);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Player"),
+          content: Text(username + (hideElo ? '' : ' (${elo.round()})')),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
       RecordModel game = widget.game;
@@ -234,7 +254,7 @@ class _EventVSState extends State<EventVS>{
             Expanded(
               child: Column(
                 children: [
-                  InkWell(onTap: () => { print("TODO: profile") }, 
+                  InkWell(onTap: () => { showPlayerInfo(game.getStringValue("white_name"), game.getDoubleValue("white_elo")) }, 
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     width: 200,
@@ -317,7 +337,7 @@ class _EventVSState extends State<EventVS>{
              if (!bye) Expanded(
               child: Column(
                 children: [
-                   InkWell(onTap:() => { print("TODO: profile page")}, child: 
+                   InkWell(onTap:() => { showPlayerInfo(game.getStringValue("black_name"), game.getDoubleValue("black_elo")) }, child: 
                    Container(
                     padding: const EdgeInsets.all(12),
                     width: 200,
