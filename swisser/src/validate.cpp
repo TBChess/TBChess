@@ -15,6 +15,7 @@ void validatePairConsistency(const tournament::Tournament &tournament)
                 tournament.players[match.opponent];
             if (
                 !opponent.isValid
+                || opponent.matches.size() <= matchIndex 
                 || !opponent.matches[matchIndex].gameWasPlayed
                 || opponent.matches[matchIndex].color == match.color
                 || opponent.matches[matchIndex].opponent != player.id)
