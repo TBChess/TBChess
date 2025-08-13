@@ -19,19 +19,21 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loginWithGoogle() async {
     try {
-      setState(() {
-        _isLoading = true;
+
+      final authData = await pb.collection('users').authWithOAuth2('google', (url) async {
+        // or use something like flutter_custom_tabs to make the transitions between native and web content more seamless
+        await launchUrl(url);
       });
+
+      if (pb.authStore.isValid){
+        print(authData.meta);
+      }
+
+      print("OK!");
 
     } on ClientException catch (error){
       if (mounted){
         context.showNetworkError(error, title: "Login failed");
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }
@@ -127,6 +129,17 @@ class _LoginPageState extends State<LoginPage> {
               ],
               ),
               ),
+            ),
+            const SizedBox(height: 48),
+
+            TextButton(
+              onPressed: () async {
+                final Uri url = Uri.parse('https://tbchess.org/privacy');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                }
+              },
+              child: const Text('Privacy Policy'),
             ),
             ],
           ),
