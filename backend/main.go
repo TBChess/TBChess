@@ -144,7 +144,9 @@ func main() {
 
 	// Default users name
 	app.OnRecordCreateRequest("users").BindFunc(func(e *core.RecordRequestEvent) error {
-		e.Record.Set("name", strings.Split(e.Record.Email(), "@")[0])
+		if e.Record.GetString("name") == "" {
+			e.Record.Set("name", strings.Split(e.Record.Email(), "@")[0])
+		}
 		e.Record.Set("elo", 1200)
 
 		return e.Next()
