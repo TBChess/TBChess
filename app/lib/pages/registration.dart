@@ -16,8 +16,6 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   bool _isLoading = false;
-  bool _initialized = false;
-  bool _invited = false;
   late final TextEditingController _usernameController = TextEditingController();
   late final TextEditingController _passwordController = TextEditingController();
 
@@ -77,35 +75,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  Future<void> _checkInvite() async {
-    String invite = context.getInvite();
-     if (mounted && invite.isNotEmpty){
-      try {
-        final decoded = String.fromCharCodes(base64.decode(invite));
-        final inviteDate = DateTime.parse(decoded);
-        final now = DateTime.now();
-        final diff = now.difference(inviteDate);
-        if (diff.inHours < 24) {
-           setState(() {
-            _invited = true;
-           });
-        }else{
-          context.showMessageBox("This invite is no longer valid");
-        }
-      } catch (e) {
-       // pass
-      }
-     }
-
-     setState(() {
-        _initialized = true;
-     });
-  }
-
   @override
   void initState() {
     super.initState();
-    _checkInvite();
 
     try{
       _usernameController.text = prefs.getString("lastEmailLogin") ?? "";
@@ -125,40 +97,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome, contender'), centerTitle: true),
+      appBar: AppBar(title: const Text('Register'), centerTitle: true,
+          leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go('/login');
+          },
+        ),
+      ),
+      
       body: ListView(
         padding: const EdgeInsets.symmetric( horizontal: 16),
         children: [
-          SizedBox(
-            height: 250,
-            child: Center(
-              child:  SvgPicture.asset(
-                assetImagePath('images/logo.svg'),
-                semanticsLabel: 'TB Chess Logo',
-                allowDrawingOutsideViewBox: true,
-                height: 100,
-              )
-            ),
-          ),
-          if (_initialized && !_invited) ...[
-            Center(child: const Text('TB Chess currently requires an invite from an existing player to join.')),
-            const SizedBox(height: 18),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children:[ 
-              ElevatedButton(
-                onPressed: () async{
-                  await launchUrl(Uri.parse("https://tbchess.org/invite.htm"));
-                },
-                child: Padding(padding: EdgeInsetsGeometry.symmetric(vertical: 4, horizontal:12),
-                  child: Text('Request an Invite'),
-                ),
-              ),
-              ],
-            ),
-          ],
-
-          if (_initialized && _invited) ...[
-            const Text('Glory awaits. Create your account to join a battle:', textAlign: TextAlign.center,),
-            const SizedBox(height: 18),
             TextFormField(
               controller: _usernameController,
               decoration: const InputDecoration(labelText: 'Email'),
@@ -182,18 +132,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
               ],
             ),
-          ],
-          
-          if (_initialized) ...[
             const SizedBox(height: 18),
             TextButton(
               onPressed: () {
-                context.go('/login');
+                context.go('/login_email');
               },
               child: const Text('Already have an account?'),
             ),
-          ],
-        ],
+          ],          
       ),
     );
   }

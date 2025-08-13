@@ -64,16 +64,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     }
   }
 
-  String generateInviteCode(){
-    final now = DateTime.now().toIso8601String();
-    final bytes = utf8.encode(now);
-    return base64.encode(bytes);
-  }
-  
   void _showQRCodeDialog() {
     final c = getConfig();
 
-    final eventUrl = '${c["APP_URL"]}/#/event/${widget.eventId}?invite=${generateInviteCode()}'; // Replace with your actual domain
+    final eventUrl = '${c["APP_URL"]}/#/event/${widget.eventId}}'; // Replace with your actual domain
     
     showDialog(
       context: context,
