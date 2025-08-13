@@ -6,7 +6,7 @@ import time
 # Configuration
 API_URL = "http://localhost:8080/round"
 NUM_REQUESTS = 10
-NUM_PLAYERS = 25
+NUM_PLAYERS = 8
 NUM_ROUNDS = 5
 
 def generate_players(num_players):

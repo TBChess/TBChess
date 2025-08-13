@@ -26,9 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "validate.hpp"
 
 using json = nlohmann::json;
-#define APP_VERSION "0.9.3"
-
-
+#define APP_VERSION "0.9.4"
 
 
 int main(int argc, char **argv) {
