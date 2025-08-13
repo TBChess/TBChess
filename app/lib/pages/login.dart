@@ -6,6 +6,7 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tbchessapp/config.dart';
+import 'package:web/web.dart' as web;
 import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
@@ -20,9 +21,26 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loginWithGoogle() async {
     try {
+      // on iOS, you cannot launch new windows from async
+      web.Window? w;
+
+      if (kIsWeb){
+        w = web.window.open("", "_blank");
+        if (mounted && w == null){
+          context.showMessageBox("Cannot login with Google (auth popup blocked)");
+          return;
+        }
+      }
+
       await pb.collection('users').authWithOAuth2('google', (url) async {
         // TODO: or use something like flutter_custom_tabs?
-        await launchUrl(url);
+
+        if (kIsWeb){
+          w!.location.href = url.toString();
+        }else{
+          await launchUrl(url);
+        }
+
       });
 
       if (pb.authStore.isValid && mounted){
