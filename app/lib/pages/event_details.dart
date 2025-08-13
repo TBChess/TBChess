@@ -519,7 +519,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
                             return InkWell(
                               onTap: () {
-                                print('Tapped on user: $username');
+                                print("Tapped $username");
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
