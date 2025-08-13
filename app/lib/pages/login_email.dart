@@ -32,11 +32,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
         _emailController.clear();
         _passwordController.clear();
 
-        if (context.getNextPage().isNotEmpty) {
-          context.go(context.getNextPage());
-        }else{ 
-          context.go("/events");
-        }
+        context.goNextPageOrTo("/events");
       }
     } on ClientException catch (error){
       if (mounted){

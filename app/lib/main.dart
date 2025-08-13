@@ -210,6 +210,14 @@ extension ContextExtension on BuildContext {
     }
   }
 
+  goNextPageOrTo(String fallback){
+    if (getNextPage().isNotEmpty) {
+      go(getNextPage());
+    }else{ 
+      go(fallback);
+    }
+  }
+
   void showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(

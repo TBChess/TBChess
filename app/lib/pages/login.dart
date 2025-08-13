@@ -20,19 +20,18 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loginWithGoogle() async {
     try {
-
-      final authData = await pb.collection('users').authWithOAuth2('google', (url) async {
-        print(url);
-        // or use something like flutter_custom_tabs to make the transitions between native and web content more seamless
+      await pb.collection('users').authWithOAuth2('google', (url) async {
+        // TODO: or use something like flutter_custom_tabs?
         await launchUrl(url);
       });
 
-      if (pb.authStore.isValid){
-        context.showMessageBox(authData.meta.toString());
+      if (pb.authStore.isValid && mounted){
+        context.goNextPageOrTo("/events");
+      }else{
+        if (mounted){
+          context.showMessageBox("Login failed");
+        }
       }
-
-      print("OK!");
-
     } on ClientException catch (error){
       if (mounted){
         context.showNetworkError(error, title: "Login failed");

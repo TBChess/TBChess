@@ -16,13 +16,16 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   bool _isLoading = false;
+  late final TextEditingController _nameController = TextEditingController();
   late final TextEditingController _usernameController = TextEditingController();
   late final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _register() async {
     final email = _usernameController.text.trim();
+    final name = _nameController.text.trim();
+    final capitalizedName = name.isNotEmpty && name.length > 2 ? name[0].toUpperCase() + name.substring(1) : name;
 
-    if (email.isEmpty || _passwordController.text.trim().isEmpty) {
+    if (capitalizedName.isEmpty || email.isEmpty || _passwordController.text.trim().isEmpty) {
       if (mounted) {
         context.showMessageBox('Please fill-in all fields');
       }
@@ -34,33 +37,47 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _isLoading = true;
       });
 
-      // Create user account
-      final body = <String, dynamic>{
-        "email": email,
-        "password": _passwordController.text.trim(),
-        "passwordConfirm":  _passwordController.text.trim(),
-        "emailVisibility": false
-      };
+      bool existingUserFound = false;
 
-      await pb.collection('users').create(body: body);
+      // Try logging-in, just in case this is a user mistake
+      try{
+        await pb.collection('users').authWithPassword(
+          email,
+          _passwordController.text.trim(),
+        );
+        existingUserFound = true;
 
-      // Automatically sign in the user after successful registration
-      await pb.collection('users').authWithPassword(
-        email,
-        _passwordController.text.trim(),
-      );
+      } on ClientException catch (_){
+        // Pass
+      }
+
+      if (!existingUserFound){
+        // Create user account
+        final body = <String, dynamic>{
+          "email": email,
+          "password": _passwordController.text.trim(),
+          "passwordConfirm":  _passwordController.text.trim(),
+          "emailVisibility": false,
+          "name": capitalizedName
+        };
+
+        await pb.collection('users').create(body: body);
+
+        // Automatically sign in the user after successful registration
+        await pb.collection('users').authWithPassword(
+          email,
+          _passwordController.text.trim(),
+        );
+      }
 
       if (mounted) {
         prefs.setString("lastEmailLogin", email);
 
+        _nameController.clear();
         _usernameController.clear();
         _passwordController.clear();
         
-        if (context.getNextPage().isNotEmpty) {
-          context.go(context.getNextPage());
-        }else{ 
-          context.go("/events");
-        }
+        context.goNextPageOrTo("/events");
       }
     } on ClientException catch (error){
       if (mounted){
@@ -88,6 +105,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -109,6 +127,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric( horizontal: 16),
         children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 18),
             TextFormField(
               controller: _usernameController,
               decoration: const InputDecoration(labelText: 'Email'),
