@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -21,12 +22,13 @@ class _LoginPageState extends State<LoginPage> {
     try {
 
       final authData = await pb.collection('users').authWithOAuth2('google', (url) async {
+        print(url);
         // or use something like flutter_custom_tabs to make the transitions between native and web content more seamless
         await launchUrl(url);
       });
 
       if (pb.authStore.isValid){
-        print(authData.meta);
+        context.showMessageBox(authData.meta.toString());
       }
 
       print("OK!");
