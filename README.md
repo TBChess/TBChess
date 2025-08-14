@@ -11,6 +11,7 @@ A free and open source platform for modern and automated in-person chess tournam
 * ELO tracking
 * Round pairing generation (round robin or FIDE dutch swiss)
 * Built-in clock
+* New round push notifications (optional)
 * Leaderboards
 * Event list
 * Single sign-on with Google
