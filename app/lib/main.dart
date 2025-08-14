@@ -188,11 +188,7 @@ extension ContextExtension on BuildContext {
   }
 
   goAuthPage(){
-    if ((prefs.getString("lastEmailLogin") ?? "").isEmpty){
-      go("/registration");
-    }else{
-      go("/login");
-    }
+    go("/login");
   }
 
   goPush(String location){

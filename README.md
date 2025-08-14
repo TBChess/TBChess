@@ -2,11 +2,23 @@
 
 A free and open source platform for modern and automated in-person chess tournament management.
 
-It features player registration, ELO tracking, tournament management, round pairing generation with either Round Robin or FIDE Swiss Dubov system, leaderboards, administration dashboard, a mobile web app and native app support, automatic production deployment and SSL certificate generation via LetsEncrypt.
+![Image](https://github.com/user-attachments/assets/142f8036-9a7a-4293-8467-48107ec8bf84)
 
-![Image](https://github.com/user-attachments/assets/bc5d6d33-8b8d-4814-89a4-a4649ac79259)
+## Features
 
-It's also super-lightweight and cross-platform (runs on Windows, macOS, Linux). You can run it on your laptop or deploy it to the cheapest VPS you can find.
+* Runs in your browser. No app downloads required
+* Player registration
+* ELO tracking
+* Round pairing generation (round robin or FIDE dutch swiss)
+* Built-in clock
+* Leaderboards
+* Event list
+* Single sign-on with Google
+* Administration dashboard
+* Easy deployment
+* SSL certificate generation via LetsEncrypt
+* Multi-platform (Linux, Windows, macOS)
+* Lightweight (runs on your laptop or the cheapest VPS you can find)
 
 ## Getting Started
 
