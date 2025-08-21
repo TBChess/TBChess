@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "validate.hpp"
 
 using json = nlohmann::json;
-#define APP_VERSION "0.9.4"
+#define APP_VERSION "0.9.5"
 
 
 int main(int argc, char **argv) {
@@ -69,6 +69,13 @@ int main(int argc, char **argv) {
             json games = json::array();
             if (j.contains("games")){
                 games = j.at("games");
+            }
+            std::string format = "auto";
+            if (j.contains("format")){
+                format = j.at("format").get<std::string>();
+                if (format != "auto" && format != "swiss" && format != "roundrobin"){
+                    format = "auto";
+                }
             }
 
             tournament::Tournament tournament;
@@ -169,34 +176,44 @@ int main(int argc, char **argv) {
                 tournament.players.push_back(std::move(p));
             }
 
-            swisssystems::SwissSystem swissSystem = swisssystems::ROUNDROBIN;
             int numPlayers = tournament.players.size();
             int numRounds = tournament.expectedRounds;
-    
-            // int maxSwissRounds = 0;
+
             if (numPlayers <= 1 || numRounds <= 0){
                 throw std::runtime_error("Cannot pair single or no players or when num rounds <= 0");
             }
-            
-            // minSwissPlayers[3] -> minimum number of players for a 3 rounds swiss tournament to work 
-            // determined empirically by stress testing the system
-            int minSwissPlayers[9] = {
-                -1, -1, 
-                3, // 2 rounds
-                3, // 3 rounds
-                5, // 4 rounds
-                7, // 5 rounds
-                9, // 6 rounds
-                9, // 7 rounds
-                11, // 8 rounds
-            };
-            int safeNumberOfSwissRounds = static_cast<int>(std::log2(numPlayers) + 1);
 
-            if ((numPlayers > 16) ||  // Round robin limit
-                (numRounds == 1) || // Trivial case
-                (numRounds <= safeNumberOfSwissRounds) || // Safe
-                (numRounds <= 8 && minSwissPlayers[numRounds] <= numPlayers)){ // Tested empirically 
+            swisssystems::SwissSystem swissSystem;
+
+            if (format == "auto"){
+                // minSwissPlayers[3] -> minimum number of players for a 3 rounds swiss tournament to work 
+                // determined empirically by stress testing the system
+                int minSwissPlayers[9] = {
+                    -1, -1, 
+                    3, // 2 rounds
+                    3, // 3 rounds
+                    5, // 4 rounds
+                    7, // 5 rounds
+                    9, // 6 rounds
+                    9, // 7 rounds
+                    11, // 8 rounds
+                };
+                int safeNumberOfSwissRounds = static_cast<int>(std::log2(numPlayers) + 1);
+    
+                if ((numPlayers > 16) ||  // Round robin limit
+                    (numRounds == 1) || // Trivial case
+                    (numRounds <= safeNumberOfSwissRounds) || // Safe
+                    (numRounds <= 8 && minSwissPlayers[numRounds] <= numPlayers)){ // Tested empirically 
+                    swissSystem = swisssystems::DUTCH;
+                }else{
+                    swissSystem = swisssystems::ROUNDROBIN;
+                }
+            }else if (format == "roundrobin"){
+                swissSystem = swisssystems::ROUNDROBIN;
+            }else if (format == "swiss"){
                 swissSystem = swisssystems::DUTCH;
+            }else{
+                throw std::runtime_error("Invalid format");
             }
 
             const swisssystems::Info &info = swisssystems::getInfo(swissSystem);
@@ -229,6 +246,14 @@ int main(int argc, char **argv) {
                 std::cout << "--> " << out << std::endl;
             }
             
+            res.set_content(out, "application/json");
+        }catch (const swisssystems::NoValidPairingException &e){
+            json j = json::array();
+            std::string out = j.dump();
+            if (verbose){
+                std::cout << "--> " << out << std::endl;
+            }
+
             res.set_content(out, "application/json");
         }catch (const std::exception& e) {
             json j;

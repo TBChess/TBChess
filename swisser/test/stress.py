@@ -6,8 +6,10 @@ import time
 # Configuration
 API_URL = "http://localhost:8080/round"
 NUM_REQUESTS = 10
-NUM_PLAYERS = 8
-NUM_ROUNDS = 5
+NUM_PLAYERS = 7
+NUM_ROUNDS = 10
+FORMAT = "swiss"
+FLEXIBLE_ROUNDS = True
 
 def generate_players(num_players):
     """Generate players with random ELO ratings"""
@@ -58,7 +60,8 @@ def stress_test_endpoint(url, num_requests=100):
             payload = {
                 "rounds": NUM_ROUNDS,
                 "players": players,
-                "games": game_hist
+                "games": game_hist,
+                "format": FORMAT
             }
             data = {"data": json.dumps(payload)}
 
@@ -137,6 +140,9 @@ def stress_test_endpoint(url, num_requests=100):
                                 print("%s (%s, W: %s, B: %s) vs %s (%s, W: %s, B: %s)" % (p['white'], scores[p['white']], stats[p['white']]['white'], stats[p['white']]['black'], 
                                                                                           b, scores[b], stats[p['black']]['white'], stats[p['black']]['black']))
                         # print(stats)
+                    elif isinstance(res, list) and FLEXIBLE_ROUNDS and len(res) == 0:
+                        print("Finished (no more rounds)")
+                        break
                     else:
                         print(f"Invalid response format: {res}")
                         exit(1)
