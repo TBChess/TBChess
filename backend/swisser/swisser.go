@@ -69,6 +69,7 @@ type RoundRequest struct {
 	Rounds  int      `json:"rounds"`
 	Players []Player `json:"players"`
 	Games   [][]Game `json:"games"`
+	Format  string   `json:"format"`
 }
 
 // Round sends a POST request to the /round endpoint

@@ -276,7 +276,7 @@ func main() {
 		return nil
 	}
 
-	nextRound := func(txApp core.App, e *core.RequestEvent, event *core.Record) error {
+	nextRound := func(txApp core.App, e *core.RequestEvent, event *core.Record) (error, bool) {
 		// Check signups
 		minPlayers := event.GetInt("min_players")
 		signups, err := txApp.FindRecordsByFilter("event_signups_list",
@@ -287,22 +287,23 @@ func main() {
 			dbx.Params{"event_id": event.Id})
 
 		if err != nil {
-			return e.BadRequestError("Not enough players signed up", nil)
+			return e.BadRequestError("Not enough players signed up", nil), false
 		}
 
 		if len(signups) < minPlayers {
-			return e.BadRequestError(fmt.Sprintf("Need at least %d players to start the next round", minPlayers), nil)
+			return e.BadRequestError(fmt.Sprintf("Need at least %d players to start the next round", minPlayers), nil), false
 		}
 
 		curGames, err := txApp.FindAllRecords("games",
 			dbx.NewExp("event = {:event_id}", dbx.Params{"event_id": event.Id}),
 		)
 		if err != nil {
-			return e.BadRequestError("Cannot find past games", nil)
+			return e.BadRequestError("Cannot find past games", nil), false
 		}
 
 		// Create rounds
 		rr := swisser.RoundRequest{}
+		rr.Format = event.GetString("format")
 		rr.Rounds = event.GetInt("rounds")
 
 		// Find next round, populate game history
@@ -330,12 +331,12 @@ func main() {
 
 		pairings, err := swisserClient.Round(rr)
 		if err != nil {
-			return e.BadRequestError("Cannot create round pairings", nil)
+			return e.BadRequestError("Cannot create round pairings", nil), false
 		}
 
 		games, err := txApp.FindCollectionByNameOrId("games")
 		if err != nil {
-			return e.BadRequestError("Cannot create round pairings (no games collection)", nil)
+			return e.BadRequestError("Cannot create round pairings (no games collection)", nil), false
 		}
 
 		for _, p := range pairings {
@@ -349,22 +350,31 @@ func main() {
 			game.Set("round", maxRound+1)
 			err = txApp.Save(game)
 			if err != nil {
-				return e.BadRequestError("Cannot create game", nil)
+				return e.BadRequestError("Cannot create game", nil), false
 			}
 		}
 
-		event.Set("current_round", maxRound+1)
+		// If no pairings were returned, the tournament is over
+		earlyFinish := false
+		if len(pairings) == 0 {
+			earlyFinish = true
+		} else {
+			event.Set("current_round", maxRound+1)
+		}
+
 		err = txApp.Save(event)
 		if err != nil {
-			return e.BadRequestError("Cannot save event", nil)
+			return e.BadRequestError("Cannot save event", nil), false
 		}
 
-		err = webPushNotifyNewRound(txApp, event.Id, maxRound+1)
-		if err != nil {
-			txApp.Logger().Warn(fmt.Sprintf("Cannot push web notifications: %s", err))
+		if !earlyFinish {
+			err = webPushNotifyNewRound(txApp, event.Id, maxRound+1)
+			if err != nil {
+				txApp.Logger().Warn(fmt.Sprintf("Cannot push web notifications: %s", err))
+			}
 		}
 
-		return nil
+		return nil, earlyFinish
 	}
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
@@ -396,7 +406,7 @@ func main() {
 			}
 
 			err = app.RunInTransaction(func(txApp core.App) error {
-				err := nextRound(txApp, e, event)
+				err, _ := nextRound(txApp, e, event)
 				if err != nil {
 					return err
 				}
@@ -522,8 +532,22 @@ func main() {
 				// All games have finished?
 				if countFinish == len(allGames) {
 
-					// Done?
+					done := false
 					if currentRound >= rounds {
+						done = true
+					} else {
+						// Generate next round
+						err, earlyFinish := nextRound(txApp, e, event)
+						if err != nil {
+							return err
+						}
+						if earlyFinish {
+							event.Set("rounds", currentRound)
+							done = true
+						}
+					}
+
+					if done {
 						event.Set("finished", true)
 						err = txApp.Save(event)
 						if err != nil {
@@ -536,13 +560,6 @@ func main() {
 						// X many hours to give time to fix these problems
 
 						err = finalizeEvent(txApp, e, event)
-						if err != nil {
-							return err
-						}
-
-					} else {
-						// Generate next round
-						err := nextRound(txApp, e, event)
 						if err != nil {
 							return err
 						}
