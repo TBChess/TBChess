@@ -42,11 +42,9 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
         setState(() {
           _updatingReg = true;      
         });
-        final record = await pb.collection('event_signups').create(body: {
-          "user": uid,
-          "event": eid
-        });
-
+        final json = await pb.send("/api/tbchess/event/$eid/register", method: "POST");
+        final record = RecordModel.fromJson(json);
+        
         record.data["username"] = pb.authStore.record?.getStringValue("name");
         if (widget.onRegister != null) widget.onRegister!(record);
         setState(() {
@@ -62,10 +60,7 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
             setState(() {
               _updatingReg = true;      
             });
-            final es = await pb.collection('event_signups').getFirstListItem(
-              'user="$uid" && event="$eid"',
-            );
-            await pb.collection('event_signups').delete(es.id);
+            await pb.send("/api/tbchess/event/$eid/unregister", method: "POST");
 
             setState(() {
               _signedUp = false;
