@@ -379,6 +379,125 @@ func main() {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 
+		// Register for an event
+		se.Router.POST("/api/tbchess/event/{event_id}/register", func(e *core.RequestEvent) error {
+			eventId := e.Request.PathValue("event_id")
+			if eventId == "" {
+				return e.BadRequestError("Empty event ID", nil)
+			}
+
+			event, _ := app.FindRecordById(
+				"events",
+				eventId,
+			)
+
+			if event == nil {
+				return e.BadRequestError("Cannot find event", nil)
+			}
+
+			if event.GetBool("finished") {
+				return e.BadRequestError("Event has finished", nil)
+			}
+
+			signups, err := app.FindRecordsByFilter("event_signups",
+				"event = {:event_id}",
+				"",
+				0,
+				0,
+				dbx.Params{"event_id": event.Id})
+
+			if err != nil {
+				return e.BadRequestError("Cannot retrieve event signups", nil)
+			}
+
+			for _, s := range signups {
+				if s.GetString("user") == e.Auth.Id {
+					return e.BadRequestError("Already signed up", nil)
+				}
+			}
+
+			waitlist := false
+			maxPlayers := event.GetInt("max_players")
+			started := event.GetBool("started")
+
+			if len(signups) >= maxPlayers || started {
+				waitlist = true
+			}
+
+			event_signups_collection, err := app.FindCollectionByNameOrId("event_signups")
+			if err != nil {
+				return e.BadRequestError("Cannot signup (no collection)", nil)
+			}
+
+			s := core.NewRecord(event_signups_collection)
+			s.Set("user", e.Auth.Id)
+			s.Set("event", event.Id)
+			s.Set("waitlist", waitlist)
+
+			err = app.Save(s)
+			if err != nil {
+				return e.BadRequestError("Cannot signup (creation error)", nil)
+			}
+
+			return e.JSON(http.StatusOK, s)
+		}).Bind(apis.RequireAuth())
+
+		// Unregister from an event
+		se.Router.POST("/api/tbchess/event/{event_id}/unregister", func(e *core.RequestEvent) error {
+			eventId := e.Request.PathValue("event_id")
+			if eventId == "" {
+				return e.BadRequestError("Empty event ID", nil)
+			}
+
+			event, _ := app.FindRecordById(
+				"events",
+				eventId,
+			)
+
+			if event == nil {
+				return e.BadRequestError("Cannot find event", nil)
+			}
+
+			if event.GetBool("finished") {
+				return e.BadRequestError("Event has finished", nil)
+			}
+
+			signups, err := app.FindRecordsByFilter("event_signups",
+				"event = {:event_id} && user = {:user_id}",
+				"",
+				0,
+				0,
+				dbx.Params{"event_id": event.Id, "user_id": e.Auth.Id})
+
+			if err != nil {
+				return e.BadRequestError("Already unregistered", nil)
+			}
+
+			// There should always be one registration for one user at this point
+			if len(signups) != 1 {
+				return e.BadRequestError("Cannot unregister (not registered?)", nil)
+			}
+
+			s := signups[0]
+			started := event.GetBool("started")
+			if !started {
+				// Remove registration
+				err := app.Delete(s)
+				if err != nil {
+					return e.BadRequestError("Cannot unregister", nil)
+				}
+			} else {
+				// Move to waitlist
+				s.Set("waitlist", true)
+				err = app.Save(s)
+				if err != nil {
+					return e.BadRequestError("Cannot update signup", nil)
+				}
+			}
+
+			return e.JSON(http.StatusOK, map[string]bool{"success": true})
+		}).Bind(apis.RequireAuth())
+
 		// Start an event
 		se.Router.POST("/api/tbchess/event/{event_id}/start", func(e *core.RequestEvent) error {
 			eventId := e.Request.PathValue("event_id")
