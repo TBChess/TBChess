@@ -327,6 +327,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     bool finished = event.getBoolValue("finished");
     int currentRound = event.getIntValue("current_round");
     String prizes = event.getStringValue("prizes");
+    String format = event.getStringValue("format", "");
+    if (format == "swiss"){
+      format = "Swiss";
+    }else if (format == "roundrobin"){
+      format = "Round Robin";
+    }
+
     String roundText = "Round $currentRound";
     if (currentRound == event.getIntValue("rounds")){
       roundText = "Final Round";
@@ -680,16 +687,24 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                               ),
 
                               
-                              if (prizes.isNotEmpty) ...[const SizedBox(height: 12), Row(
+                              if (prizes.isNotEmpty || format.isNotEmpty) ...[const SizedBox(height: 12), Row(
                                 children: [
-                                  Expanded(
+                                  if (prizes.isNotEmpty) Expanded(
                                     child: _buildInfoItem(
                                       Icons.emoji_events,
                                       'Prizes',
                                       prizes,
                                       multiline: true
                                     ),
-                                  )
+                                  ),
+
+                                  if (format.isNotEmpty) Expanded(
+                                    child: _buildInfoItem(
+                                      Icons.account_tree_outlined,
+                                      'Tournament Format',
+                                      format
+                                    ),
+                                  ),
                                 ],
                               ),],
                             ],                            
