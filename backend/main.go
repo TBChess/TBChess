@@ -279,8 +279,8 @@ func main() {
 	nextRound := func(txApp core.App, e *core.RequestEvent, event *core.Record) (error, bool) {
 		// Check signups
 		minPlayers := event.GetInt("min_players")
-		signups, err := txApp.FindRecordsByFilter("event_signups_list",
-			"event = {:event_id}",
+		registered, err := txApp.FindRecordsByFilter("event_signups_list",
+			"event = {:event_id} && waitlist = 0",
 			"created",
 			0,
 			0,
@@ -290,7 +290,7 @@ func main() {
 			return e.BadRequestError("Not enough players signed up", nil), false
 		}
 
-		if len(signups) < minPlayers {
+		if len(registered) < minPlayers {
 			return e.BadRequestError(fmt.Sprintf("Need at least %d players to start the next round", minPlayers), nil), false
 		}
 
@@ -322,7 +322,7 @@ func main() {
 			})
 		}
 
-		for _, signup := range signups {
+		for _, signup := range registered {
 			rr.Players = append(rr.Players, swisser.Player{
 				Name: signup.GetString("user"),
 				Elo:  signup.GetInt("elo"),
@@ -410,9 +410,13 @@ func main() {
 				return e.BadRequestError("Cannot retrieve event signups", nil)
 			}
 
+			registeredCount := 0
 			for _, s := range signups {
 				if s.GetString("user") == e.Auth.Id {
 					return e.BadRequestError("Already signed up", nil)
+				}
+				if !s.GetBool("waitlist") {
+					registeredCount++
 				}
 			}
 
@@ -420,7 +424,7 @@ func main() {
 			maxPlayers := event.GetInt("max_players")
 			started := event.GetBool("started")
 
-			if len(signups) >= maxPlayers || started {
+			if registeredCount >= maxPlayers || started {
 				waitlist = true
 			}
 
@@ -462,37 +466,60 @@ func main() {
 				return e.BadRequestError("Event has finished", nil)
 			}
 
-			signups, err := app.FindRecordsByFilter("event_signups",
-				"event = {:event_id} && user = {:user_id}",
-				"",
-				0,
-				0,
-				dbx.Params{"event_id": event.Id, "user_id": e.Auth.Id})
+			err = app.RunInTransaction(func(txApp core.App) error {
 
-			if err != nil {
-				return e.BadRequestError("Already unregistered", nil)
-			}
+				signups, err := txApp.FindRecordsByFilter("event_signups",
+					"event = {:event_id} && user = {:user_id}",
+					"",
+					0,
+					0,
+					dbx.Params{"event_id": event.Id, "user_id": e.Auth.Id})
 
-			// There should always be one registration for one user at this point
-			if len(signups) != 1 {
-				return e.BadRequestError("Cannot unregister (not registered?)", nil)
-			}
+				if err != nil {
+					return e.BadRequestError("Already unregistered", nil)
+				}
 
-			s := signups[0]
-			started := event.GetBool("started")
-			if !started {
+				// There should always be one registration for one user at this point
+				if len(signups) != 1 {
+					return e.BadRequestError("Cannot unregister (not registered?)", nil)
+				}
+
+				s := signups[0]
+
 				// Remove registration
-				err := app.Delete(s)
+				err = txApp.Delete(s)
 				if err != nil {
 					return e.BadRequestError("Cannot unregister", nil)
 				}
-			} else {
-				// Move to waitlist
-				s.Set("waitlist", true)
-				err = app.Save(s)
-				if err != nil {
-					return e.BadRequestError("Cannot update signup", nil)
+
+				started := event.GetBool("started")
+				if !started {
+					// Bump next player from waitlist (if any)
+					next_waitlist, err := txApp.FindRecordsByFilter("event_signups",
+						"event = {:event_id} && waitlist = 1",
+						"updated",
+						1,
+						0,
+						dbx.Params{"event_id": event.Id})
+					if err != nil {
+						return e.BadRequestError("Cannot bump people from waitlist", nil)
+					}
+
+					if len(next_waitlist) > 0 {
+						w := next_waitlist[0]
+						w.Set("waitlist", false)
+						err = txApp.Save(w)
+						if err != nil {
+							return e.BadRequestError("Cannot update bumped waitlist user", nil)
+						}
+					}
 				}
+
+				return nil
+			})
+
+			if err != nil {
+				return err
 			}
 
 			return e.JSON(http.StatusOK, map[string]bool{"success": true})
