@@ -169,35 +169,53 @@ func main() {
 		return e.Next()
 	})
 
-	// Signups checks
-	app.OnRecordCreateRequest("event_signups").BindFunc(func(e *core.RecordRequestEvent) error {
+	// Checks when event owners bump somebody from the waitlist
+	app.OnRecordUpdateRequest("event_signups").BindFunc(func(e *core.RecordRequestEvent) error {
 		if e.Auth == nil {
 			return e.ForbiddenError("Not authenticated", nil)
 		}
 
-		// Check duplicate registration
-		signup, _ := app.FindFirstRecordByFilter(
-			"event_signups",
-			"user_id = {:user_id} && event = {:event_id}",
-			dbx.Params{"user_id": e.Auth.Id, "event_id": e.Record.GetString("event")},
-		)
-
-		if signup != nil {
-			return e.BadRequestError("You're already registered!", nil)
+		event, err := app.FindRecordById("events", e.Record.GetString("event"))
+		if err != nil {
+			return e.BadRequestError("Cannot find event for signup", err)
 		}
 
-		// Don't allow signups for events that are started
-		event, _ := app.FindRecordById(
-			"events",
-			e.Record.GetString("event"),
-		)
-
-		if event == nil {
-			return e.BadRequestError("Cannot find event", nil)
+		if event.GetBool("finished") {
+			return e.BadRequestError("Cannot find update signup (event finished)", nil)
 		}
 
-		if event.GetBool("started") {
-			return e.BadRequestError("Registration for this event is closed", nil)
+		// Moving from waitlist to registered?
+		started := event.GetBool("started")
+		dbWaitlist := e.Record.Original().GetBool("waitlist")
+		if started && dbWaitlist && !e.Record.GetBool("waitlist") {
+			// Add half bye point round for new entrant since this is a late
+			// registration
+			user := e.Record.GetString("user")
+			playerGames, _ := app.FindRecordsByFilter("games",
+				"event = {:event_id} && (white = {:user_id} || black = {:user_id})",
+				"",
+				0,
+				0,
+				dbx.Params{"event_id": event.Id, "user_id": user})
+
+			if len(playerGames) == 0 {
+				games, err := app.FindCollectionByNameOrId("games")
+				if err != nil {
+					return e.BadRequestError("Cannot update waitlist (no games collection)", nil)
+				}
+
+				game := core.NewRecord(games)
+				game.Set("white", user)
+				game.Set("bye", true)
+				game.Set("event", event.Id)
+				game.Set("round", 1)
+				game.Set("result", 0.5)
+				game.Set("finished", true)
+				err = app.Save(game)
+				if err != nil {
+					return e.BadRequestError("Cannot create bye game", nil)
+				}
+			}
 		}
 
 		return e.Next()
@@ -423,6 +441,11 @@ func main() {
 			waitlist := false
 			maxPlayers := event.GetInt("max_players")
 			started := event.GetBool("started")
+			lateRegAllowed := event.GetInt("current_round") <= event.GetInt("rounds")/2
+
+			if started && !lateRegAllowed {
+				return e.BadRequestError("Late registration not allowed", nil)
+			}
 
 			if registeredCount >= maxPlayers || started {
 				waitlist = true

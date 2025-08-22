@@ -103,11 +103,18 @@ int main(int argc, char **argv) {
 
             // Replay game history (optional)
             for (const auto &results : games){
+                // Account for all players 
+                std::unordered_map<std::string, bool> seen; 
+
                 for (const auto &r: results){
                     std::string white = r.at("white").get<std::string>();
+                    seen[white] = true;
                     
                     std::string black = "";
-                    if (r.contains("black")) black = r["black"].get<std::string>();
+                    if (r.contains("black")){
+                        black = r["black"].get<std::string>();
+                        seen[black] = true;
+                    }
                     
                     bool bye = r.contains("bye") && r["bye"].get<bool>();
                     
@@ -160,12 +167,41 @@ int main(int argc, char **argv) {
                             true,
                             true);
                     }else if (bye){
+                        tournament::MatchScore ms;
+                        if (result == 0.0f) ms = tournament::MATCH_SCORE_LOSS;
+                        else if (result == 0.5f) ms = tournament::MATCH_SCORE_DRAW;
+                        else if (result == 1.0f) ms = tournament::MATCH_SCORE_WIN;
+                        else throw std::runtime_error("Invalid game result (not 0, 0.5 or 1)");
+
                         wm->emplace_back(w->id,
                             tournament::COLOR_NONE,
-                            tournament::MATCH_SCORE_WIN,
+                            ms,
                             false,
                             false);
-                        w->scoreWithoutAcceleration += tournament.pointsForPairingAllocatedBye;
+                        
+                        if (result == 1.0f) w->scoreWithoutAcceleration += tournament.pointsForPairingAllocatedBye;
+                        else if (result == 0.5f) w->scoreWithoutAcceleration += tournament.pointsForDraw;
+                        else if (result == 0.0f) w->scoreWithoutAcceleration += tournament.pointsForLoss;
+                    }
+                }
+                
+
+                // Check for players that might have skipped a round
+                if (seen.size() < players.size()){
+                    for (const auto& p : players) {
+                        const std::string& playerId = p.first;
+                        if (seen.find(playerId) == seen.end()) {
+                            // Add 0 point bye
+                            auto w = &players[playerId];
+                            auto wm = &w->matches;
+
+                            wm->emplace_back(w->id,
+                                tournament::COLOR_NONE,
+                                tournament::MATCH_SCORE_LOSS,
+                                false,
+                                false);
+                            w->scoreWithoutAcceleration += tournament.pointsForLoss;
+                        }
                     }
                 }
             }
