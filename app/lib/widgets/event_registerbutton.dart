@@ -5,13 +5,15 @@ import 'package:tbchessapp/main.dart';
 
 class EventRegisterButton extends StatefulWidget {
   final RecordModel event;
-  final bool byob;
   final bool signedUp;
+  final bool registered;
+  final bool byob;
   final void Function(RecordModel)? onRegister;
   final void Function(String)? onUnregister;
-  final bool hideWhenStarted;
+  final bool hideIfDisabled;
   final bool cancelLabel;
-  const EventRegisterButton(this.event, this.signedUp, this.byob, {this.onRegister, this.onUnregister, this.hideWhenStarted = false, this.cancelLabel = false, super.key});
+
+  const EventRegisterButton(this.event, this.signedUp, this.registered, this.byob, {this.onRegister, this.onUnregister, this.cancelLabel = false, this.hideIfDisabled = false, super.key});
 
   @override
   State<EventRegisterButton> createState() => _EventRegisterButtonState();
@@ -44,6 +46,7 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
         });
         final json = await pb.send("/api/tbchess/event/$eid/register", method: "POST");
         final record = RecordModel.fromJson(json);
+        bool started = widget.event.getBoolValue('started');
 
         record.data["username"] = pb.authStore.record?.getStringValue("name");
         if (widget.onRegister != null) widget.onRegister!(record);
@@ -55,8 +58,12 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
           bool waitlist = record.getBoolValue("waitlist");
           List<String> parts = [];
           parts.add(!waitlist ? "You're signed up!" : "You're on the waitlist.");
-          parts.add(!waitlist ? "If something changes and you cannot make it to the event, please update your registration so that others may play." : "You can still come to the event and play if someone doesn't show up. If someone unregisters we will bump you up on the registration list. Check your status the day of the event.");
-          if (widget.byob) parts.add("Bring a chess board with you, if you have one, as the venue does not provide them.");
+          if (started){
+            parts.add("Ask the event coordinator to confirm your registration.");
+          }else{
+            parts.add(!waitlist ? "If something changes and you cannot make it to the event, please update your registration so that others may play." : "You can still come to the event and play if someone doesn't show up. If someone unregisters we will bump you up on the registration list. Check your status the day of the event.");
+          }
+          if (!started && widget.byob) parts.add("Bring a chess board with you, if you have one, as the venue does not provide them.");
 
           context.showMessageBox(parts.join("\n\n"));
         }
@@ -91,6 +98,10 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
 
   @override
   Widget build(BuildContext context) {
+    bool lateRegAllowed = widget.event.getIntValue("current_round") <= widget.event.getIntValue("rounds") / 2;
+    bool started = widget.event.getBoolValue('started');
+    bool finished = widget.event.getBoolValue('finished');
+
     String buttonText = "Register";
     Color buttonColor = Colors.blue;
     if (_signedUp){
@@ -100,10 +111,15 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
         buttonText = "Unregister";
         buttonColor = Colors.red;
       }
+    }else{
+      if (started && lateRegAllowed){
+        buttonText = "Register Late";
+      }
     }
-    bool started = widget.event.getBoolValue('started');
-    bool finished = widget.event.getBoolValue('finished');
-    if (started){
+
+    final inProgress = started && (!lateRegAllowed || widget.registered);
+    
+    if (inProgress){
       buttonText = "In Progress";
       buttonColor = Colors.teal;
     }
@@ -111,14 +127,16 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
       buttonText = "Finished";
     }
 
-    if (started && widget.hideWhenStarted) return Container();
+    if (widget.hideIfDisabled && (inProgress || finished)){
+      return Container();
+    }
 
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: buttonColor,
           minimumSize: const Size(120, 36),
         ),
-        onPressed: _updatingReg || started ? null : () => _updateRegistration(!_signedUp),
+        onPressed: _updatingReg || inProgress || finished ? null : () => _updateRegistration(!_signedUp),
         child: _updatingReg 
           ? const SizedBox(
               width: 20,

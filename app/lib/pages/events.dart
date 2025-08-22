@@ -185,6 +185,7 @@ class _EventsPageState extends State<EventsPage> {
                               child: EventRegisterButton(
                                 event, 
                                 signedUp, 
+                                true,
                                 venueByob, 
                                 onRegister: (r){
                                   event.data["players_count"] += 1;

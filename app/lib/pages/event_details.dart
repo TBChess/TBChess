@@ -321,16 +321,18 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     String venueLogoUrl = pb.files.getUrl(_venue!, venue.getStringValue("logo")).toString();
     bool venueByob = venue.getBoolValue("byob");
     bool isOwner = pb.authStore.isValid && event.getStringValue('owner') == userId;
-    // bool ownerSignedUp = _signups!.where((signup) => signup.data['user'] == event['owner']).isNotEmpty;
-    bool isSignedUp = _signups!.where((signup) => signup.data['user'] == userId).isNotEmpty;
+    bool isSignedUp = false;
+    bool isRegistered = false;
     List<RecordModel> registered = [];
     List<RecordModel> waitlist = [];
     if (_signups != null){
+      isSignedUp = _signups!.where((signup) => signup.getStringValue('user') == userId).isNotEmpty;
       registered = _signups!.where((signup) => !signup.getBoolValue("waitlist")).toList();
       waitlist = _signups!.where((signup) => signup.getBoolValue("waitlist")).toList();
+      isRegistered = registered.where((signup) => signup.getStringValue("user") == userId).isNotEmpty;
     }
 
-    bool canStartEvent = isOwner;// || (!ownerSignedUp && isSignedUp);
+    bool canStartEvent = isOwner;
     bool started = event.getBoolValue("started");
     bool finished = event.getBoolValue("finished");
     int currentRound = event.getIntValue("current_round");
@@ -498,61 +500,60 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
                 // Registration / leaderboard
 
-                if (started && _games != null)
-                  EventLeaderboard(_games!, title: finished ? "Results" : "Standings")
-                else
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.groups, color: Colors.blue),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Players',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                if (started && _games != null) ...[EventLeaderboard(_games!, title: finished ? "Results" : "Standings"), const SizedBox(height: 16)],
+                
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.groups, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Players',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (registered.isNotEmpty) ...(registered.map((signup) => EventSignup(signup, action: isOwner && !started ? EventSignupAction.BumpToWaitList : EventSignupAction.None))),
+                        if (!finished && waitlist.isNotEmpty) ...[const SizedBox(height: 12), const Divider(), const SizedBox(height: 24), Row(
+                          children: [
+                            const Icon(Icons.hourglass_bottom_rounded, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Wait List',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontStyle: FontStyle.italic
+                              ),
+                            ),
+                          ],
+                        ), const SizedBox(height: 12), ...(waitlist.map((signup) => EventSignup(signup, action: isOwner ? EventSignupAction.BumpToRegistered : EventSignupAction.None)))],
+                        
+                        if (_signups != null && _signups!.isEmpty)
+                          const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            'No players registered yet.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          if (registered.isNotEmpty) ...(registered.map((signup) => EventSignup(signup, action: isOwner && !started ? EventSignupAction.BumpToWaitList : EventSignupAction.None))),
-                          if (waitlist.isNotEmpty) ...[const SizedBox(height: 12), const Divider(), const SizedBox(height: 24), Row(
-                            children: [
-                              const Icon(Icons.hourglass_bottom_rounded, color: Colors.white),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Wait List',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontStyle: FontStyle.italic
-                                ),
-                              ),
-                            ],
-                          ), const SizedBox(height: 12), ...(waitlist.map((signup) => EventSignup(signup, action: isOwner ? EventSignupAction.BumpToRegistered : EventSignupAction.None)))],
-                          
-                          if (_signups != null && _signups!.isEmpty)
-                            const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Text(
-                              'No players registered yet.',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                            ),
-                          const SizedBox(height: 16),
-                          Center(child: EventRegisterButton(_event!, isSignedUp, venueByob, 
-                                          hideWhenStarted: true,
-                                          cancelLabel: true, ))
-                        ],
-                      ),
+                          ),
+                        const SizedBox(height: 16),
+                        Center(child: EventRegisterButton(_event!, isSignedUp, isRegistered, venueByob, 
+                                        hideIfDisabled: true,
+                                        cancelLabel: true, ))
+                      ],
                     ),
                   ),
+                ),
 
                 const SizedBox(height: 16),
                 Card(

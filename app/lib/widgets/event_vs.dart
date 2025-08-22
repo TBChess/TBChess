@@ -78,9 +78,10 @@ class _EventVSState extends State<EventVS>{
     setState((){
       if (_reportCooldown > 0){
         _reportCooldown -= 1;
-      }else{
-        t.cancel();
       }
+      // else{
+      //   t.cancel();
+      // }
     });
   }
 
