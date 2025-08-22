@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:tbchessapp/main.dart';
 import 'package:tbchessapp/widgets/event_datetime.dart';
+import 'package:tbchessapp/widgets/event_signup.dart';
 import 'package:tbchessapp/utils/events.dart';
 import 'package:tbchessapp/widgets/event_registerbutton.dart';
 import 'package:tbchessapp/widgets/event_vs.dart';
@@ -322,6 +323,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     bool isOwner = pb.authStore.isValid && event.getStringValue('owner') == userId;
     // bool ownerSignedUp = _signups!.where((signup) => signup.data['user'] == event['owner']).isNotEmpty;
     bool isSignedUp = _signups!.where((signup) => signup.data['user'] == userId).isNotEmpty;
+    List<RecordModel> registered = [];
+    List<RecordModel> waitlist = [];
+    if (_signups != null){
+      registered = _signups!.where((signup) => !signup.getBoolValue("waitlist")).toList();
+      waitlist = _signups!.where((signup) => signup.getBoolValue("waitlist")).toList();
+    }
+
     bool canStartEvent = isOwner;// || (!ownerSignedUp && isSignedUp);
     bool started = event.getBoolValue("started");
     bool finished = event.getBoolValue("finished");
@@ -512,34 +520,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          if (_signups != null && _signups!.isNotEmpty)
-                            ...(_signups!.map((signup) {
-                            final username = signup.get<String>('username');
-                            final elo = signup.get<double>('elo').round();
-                            final hideElo = pb.authStore.isValid && pb.authStore.record!.getBoolValue("hide_elo");
-
-                            return InkWell(
-                              onTap: () {
-                                print("Tapped $username");
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                                child: Row(
-                                  children: [
-                                  const Icon(Icons.person, size: 18, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    hideElo ? username : "$username ($elo)",
-                                    style: const TextStyle(
-                                    color: Colors.white,
-                                    ),
-                                  ),
-                                  ],
+                          if (registered.isNotEmpty) ...(registered.map((signup) => EventSignup(signup, action: isOwner && !started ? EventSignupAction.BumpToWaitList : EventSignupAction.None))),
+                          if (waitlist.isNotEmpty) ...[const SizedBox(height: 12), const Divider(), const SizedBox(height: 24), Row(
+                            children: [
+                              const Icon(Icons.hourglass_bottom_rounded, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Wait List',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontStyle: FontStyle.italic
                                 ),
                               ),
-                            );
-                            }).toList())
-                          else if (_signups != null && _signups!.isEmpty)
+                            ],
+                          ), const SizedBox(height: 12), ...(waitlist.map((signup) => EventSignup(signup, action: isOwner ? EventSignupAction.BumpToRegistered : EventSignupAction.None)))],
+                          
+                          if (_signups != null && _signups!.isEmpty)
                             const Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(

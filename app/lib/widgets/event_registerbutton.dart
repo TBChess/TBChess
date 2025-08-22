@@ -44,7 +44,7 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
         });
         final json = await pb.send("/api/tbchess/event/$eid/register", method: "POST");
         final record = RecordModel.fromJson(json);
-        
+
         record.data["username"] = pb.authStore.record?.getStringValue("name");
         if (widget.onRegister != null) widget.onRegister!(record);
         setState(() {
@@ -52,7 +52,13 @@ class _EventRegisterButtonState extends State<EventRegisterButton> {
         });
 
         if (mounted){
-          context.showMessageBox("You're signed up!\n\nIf something changes and you cannot make it to the event, please update your registration so that others may play.${widget.byob ? "\n\nBring a chess board with you, if you have one, as the venue does not provide them." : ""}");
+          bool waitlist = record.getBoolValue("waitlist");
+          List<String> parts = [];
+          parts.add(!waitlist ? "You're signed up!" : "You're on the waitlist.");
+          parts.add(!waitlist ? "If something changes and you cannot make it to the event, please update your registration so that others may play." : "You can still come to the event and play if someone doesn't show up. If someone unregisters we will bump you up on the registration list. Check your status the day of the event.");
+          if (widget.byob) parts.add("Bring a chess board with you, if you have one, as the venue does not provide them.");
+
+          context.showMessageBox(parts.join("\n\n"));
         }
       }else{
         if (mounted){
