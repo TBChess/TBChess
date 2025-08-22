@@ -502,7 +502,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
                 if (started && _games != null) ...[EventLeaderboard(_games!, title: finished ? "Results" : "Standings"), const SizedBox(height: 16)],
                 
-                Card(
+                if (!finished) Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -522,7 +522,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                         ),
                         const SizedBox(height: 12),
                         if (registered.isNotEmpty) ...(registered.map((signup) => EventSignup(signup, action: isOwner && !started ? EventSignupAction.BumpToWaitList : EventSignupAction.None))),
-                        if (!finished && waitlist.isNotEmpty) ...[const SizedBox(height: 12), const Divider(), const SizedBox(height: 24), Row(
+                        if (waitlist.isNotEmpty) ...[const SizedBox(height: 12), const Divider(), const SizedBox(height: 24), Row(
                           children: [
                             const Icon(Icons.hourglass_bottom_rounded, color: Colors.white),
                             const SizedBox(width: 8),
