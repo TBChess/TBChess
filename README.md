@@ -14,6 +14,7 @@ A free and open source platform for modern and automated in-person chess tournam
 * New round push notifications (optional)
 * Leaderboards
 * Event list
+* Waitlist support / late registrations
 * Single sign-on with Google
 * Administration dashboard
 * Easy deployment
