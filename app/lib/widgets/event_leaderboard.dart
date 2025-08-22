@@ -50,10 +50,10 @@ class EventLeaderboard extends StatelessWidget  {
 
       if (finished){
         // White won
-        if (result == 1.0 || bye){
+        if (result == 1.0){
           whitePlayer['wins'] += 1;
           whitePlayer['pts'] += 100;
-          if (blackPlayer != null && !bye){
+          if (blackPlayer != null){
             blackPlayer['losses'] += 1;
             blackPlayer['pts'] += 20;
           }
