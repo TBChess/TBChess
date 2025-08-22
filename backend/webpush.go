@@ -37,6 +37,10 @@ func webPushNotifyNewRound(txApp core.App, eventId string, round int) error {
 	}
 
 	for _, notification := range notifications {
+		if notification.WebPushSub == "null" {
+			continue
+		}
+
 		s := &webpush.Subscription{}
 
 		err = json.Unmarshal([]byte(notification.WebPushSub), s)
