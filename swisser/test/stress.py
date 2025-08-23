@@ -5,16 +5,17 @@ import time
 
 # Configuration
 API_URL = "http://localhost:8080/round"
-NUM_REQUESTS = 10
-NUM_PLAYERS = 7
-NUM_ROUNDS = 10
+NUM_REQUESTS = 1
+NUM_PLAYERS = 2
+NUM_ROUNDS = 5
+NUM_LATE_REG = 3
 FORMAT = "swiss"
 FLEXIBLE_ROUNDS = True
 
-def generate_players(num_players):
+def generate_players(num_players, offset = 0):
     """Generate players with random ELO ratings"""
     players = []
-    for i in range(1, num_players + 1):
+    for i in range(1 + offset, num_players + 1 + offset):
         players.append({
             "name": f"p{i}",
             "elo": round(random.uniform(600, 2000), 0)
@@ -54,9 +55,14 @@ def stress_test_endpoint(url, num_requests=100):
         pairs = []
         game_hist = []
         players = generate_players(NUM_PLAYERS)
-        
-
+        added_late = False
         for r in range(1, NUM_ROUNDS + 1):
+            if r > 1 and NUM_LATE_REG > 0 and not added_late:
+                players += generate_players(NUM_LATE_REG, len(players))
+                for i in range(len(players) - 1, len(players) + NUM_LATE_REG - 1):
+                    game_hist[0] += [{'white': f'p{i}', 'bye': True, 'result': 0.5}]
+                added_late = True
+            
             payload = {
                 "rounds": NUM_ROUNDS,
                 "players": players,
